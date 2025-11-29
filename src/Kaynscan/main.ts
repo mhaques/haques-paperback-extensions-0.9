@@ -305,11 +305,15 @@ export class KaynscanExtension implements KaynscanImplementation {
       
       if (!chapterUrl) return;
 
-      // Skip locked/paywalled chapters - they usually have a lock icon or specific class
-      const hasLockIcon = link.find("svg").length > 0 || 
-                          link.find("[class*='lock']").length > 0 ||
-                          link.closest("div").find("[class*='lock']").length > 0;
-      if (hasLockIcon) return;
+      // Skip locked/paywalled chapters - check for lock overlay div and coin cost
+      // Locked chapters have: <div class="...absolute..."><img src="...lock.svg"></div>
+      const hasLockOverlay = link.find("div.absolute").find("img[src*='lock']").length > 0;
+      
+      // Also check coin cost - locked chapters have c="75" or higher, free chapters have c="1" 
+      const coinCost = link.attr("c") || "1";
+      const isLocked = hasLockOverlay || parseInt(coinCost) > 1;
+      
+      if (isLocked) return;
 
       // Extract full chapter ID from URL like /chapter/640d715df1f-640d77c18dc/
       const chapterIdMatch = chapterUrl.match(/\/chapter\/([^\/]+)/);
@@ -353,16 +357,6 @@ export class KaynscanExtension implements KaynscanImplementation {
     try {
       const request: Request = { url: chapterUrl, method: "GET" };
       const $ = await this.fetchCheerio(request);
-
-      // Check if chapter is locked/paywalled
-      const isLocked = $("body").text().toLowerCase().includes("locked") ||
-                       $("body").text().toLowerCase().includes("premium") ||
-                       $("[class*='lock']").length > 0 ||
-                       $("svg.lock").length > 0;
-      
-      if (isLocked) {
-        throw new Error("This chapter is locked or requires premium access");
-      }
 
       const pages: string[] = [];
 

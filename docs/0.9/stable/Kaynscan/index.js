@@ -17153,8 +17153,10 @@ var source = (() => {
         const link = $2(element);
         const chapterUrl = link.attr("href") || "";
         if (!chapterUrl) return;
-        const hasLockIcon = link.find("svg").length > 0 || link.find("[class*='lock']").length > 0 || link.closest("div").find("[class*='lock']").length > 0;
-        if (hasLockIcon) return;
+        const hasLockOverlay = link.find("div.absolute").find("img[src*='lock']").length > 0;
+        const coinCost = link.attr("c") || "1";
+        const isLocked = hasLockOverlay || parseInt(coinCost) > 1;
+        if (isLocked) return;
         const chapterIdMatch = chapterUrl.match(/\/chapter\/([^\/]+)/);
         if (!chapterIdMatch) return;
         const chapterId = chapterIdMatch[1];
@@ -17183,10 +17185,6 @@ var source = (() => {
       try {
         const request = { url: chapterUrl, method: "GET" };
         const $2 = await this.fetchCheerio(request);
-        const isLocked = $2("body").text().toLowerCase().includes("locked") || $2("body").text().toLowerCase().includes("premium") || $2("[class*='lock']").length > 0 || $2("svg.lock").length > 0;
-        if (isLocked) {
-          throw new Error("This chapter is locked or requires premium access");
-        }
         const pages = [];
         $2("img.myImage").each((_, element) => {
           const src = $2(element).attr("src") || "";
