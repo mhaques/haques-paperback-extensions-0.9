@@ -4,261 +4,174 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Haques Paperback Extensions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efac',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-        }
-
-        header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 60px 40px;
-            text-align: center;
-        }
-
-        header h1 {
-            font-size: 3em;
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
-
-        header p {
-            font-size: 1.2em;
-            opacity: 0.9;
-        }
-
-        .content {
-            padding: 40px;
-        }
-
-        .section {
-            margin-bottom: 40px;
-        }
-
-        .section h2 {
-            color: #667eea;
-            font-size: 2em;
-            margin-bottom: 20px;
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 10px;
-        }
-
-        .sources-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .source-item {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            border-left: 4px solid #667eea;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .source-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .source-item h3 {
-            color: #333;
-            font-size: 1.1em;
-            margin-bottom: 5px;
-        }
-
-        .install-section {
-            background: #f0f4ff;
-            padding: 30px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-        }
-
-        .install-url {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            border: 2px solid #667eea;
-            margin: 20px 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .install-url code {
-            flex: 1;
-            font-family: 'Courier New', monospace;
-            color: #667eea;
-            font-size: 1.1em;
-            word-break: break-all;
-        }
-
-        .copy-btn {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: background 0.3s;
-        }
-
-        .copy-btn:hover {
-            background: #764ba2;
-        }
-
-        .copy-btn:active {
-            transform: scale(0.95);
-        }
-
-        ol {
-            margin-left: 20px;
-            margin-top: 15px;
-        }
-
-        ol li {
-            margin-bottom: 10px;
-            font-size: 1.1em;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 5px 10px;
-            background: #667eea;
-            color: white;
-            border-radius: 5px;
-            font-size: 0.8em;
-            margin-left: 10px;
-        }
-
-        footer {
-            background: #333;
-            color: white;
-            text-align: center;
-            padding: 20px;
-            font-size: 0.9em;
-        }
-
-        footer a {
-            color: #667eea;
-            text-decoration: none;
-        }
-
-        footer a:hover {
-            text-decoration: underline;
-        }
-
-        .success-message {
-            background: #4caf50;
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            display: none;
-            margin-top: 10px;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0a3d2c 100%);
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <header>
-            <h1>📚 Haques Paperback Extensions</h1>
-            <p>Custom manga and comic extensions for Paperback</p>
+<body class="min-h-screen text-gray-100">
+    <div class="container mx-auto max-w-6xl px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-12 bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-sm rounded-3xl p-12 border border-primary-500/20 shadow-2xl">
+            <div class="mb-6">
+                <div class="inline-block p-4 bg-primary-500/10 rounded-2xl border border-primary-500/30 shadow-lg shadow-primary-500/20">
+                    <svg class="w-16 h-16 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                    </svg>
+                </div>
+            </div>
+            <h1 class="text-5xl font-bold mb-4 bg-gradient-to-r from-primary-400 to-emerald-400 bg-clip-text text-transparent">
+                Haques Paperback Extensions
+            </h1>
+            <p class="text-xl text-gray-300">Custom manga and comic extensions for Paperback</p>
         </header>
 
-        <div class="content">
-            <div class="install-section">
-                <h2>🚀 Installation</h2>
+        <!-- Installation Section -->
+        <div class="mb-12 bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-sm rounded-2xl p-8 border border-primary-500/20 shadow-xl">
+            <h2 class="text-3xl font-bold mb-6 text-primary-400 border-b border-primary-500/30 pb-3">Installation</h2>
+            
+            <!-- Add to Paperback Button -->
+            <div class="text-center my-8">
+                <button onclick="addToPaperback()" class="group relative inline-flex items-center gap-3 px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-primary-600 to-emerald-600 rounded-xl hover:from-primary-500 hover:to-emerald-500 transition-all duration-300 shadow-lg shadow-primary-500/50 hover:shadow-xl hover:shadow-primary-500/60 hover:scale-105">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                    </svg>
+                    Add Repository to Paperback
+                </button>
+                <p class="mt-3 text-sm text-gray-400">Click to automatically add this repository to Paperback</p>
+            </div>
+
+            <div class="text-center my-6 text-gray-500 font-medium">OR</div>
+
+            <!-- Manual Installation -->
+            <div class="bg-slate-900/50 rounded-xl p-6 border border-slate-700">
+                <h3 class="text-xl font-semibold text-primary-300 mb-4">Manual Installation</h3>
+                <ol class="space-y-3 text-gray-300 mb-6">
+                    <li class="flex items-start gap-3">
+                        <span class="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-primary-500/20 text-primary-400 rounded-full text-sm font-bold">1</span>
+                        <span>Open <strong class="text-white">Paperback</strong> app on your device</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-primary-500/20 text-primary-400 rounded-full text-sm font-bold">2</span>
+                        <span>Go to <strong class="text-white">Settings</strong> → <strong class="text-white">External Sources</strong></span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-primary-500/20 text-primary-400 rounded-full text-sm font-bold">3</span>
+                        <span>Tap <strong class="text-white">Add Repository</strong></span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-primary-500/20 text-primary-400 rounded-full text-sm font-bold">4</span>
+                        <span>Copy and paste the URL below:</span>
+                    </li>
+                </ol>
                 
-                <!-- Add to Paperback Button -->
-                <div style="text-align: center; margin: 30px 0;">
-                    <button class="copy-btn" onclick="addToPaperback()" style="padding: 15px 30px; font-size: 1.2em; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);">
-                        📱 Add Repository to Paperback
+                <div class="bg-slate-800 rounded-lg p-4 border border-primary-500/30 flex items-center justify-between gap-4 flex-wrap">
+                    <code id="repoUrl" class="flex-1 text-primary-400 font-mono text-sm break-all">https://mhaques.github.io/haques-paperback-extensions-0.9/0.9/stable/</code>
+                    <button onclick="copyUrl()" class="px-4 py-2 bg-primary-600 hover:bg-primary-500 text-white rounded-lg transition-colors duration-200 font-medium whitespace-nowrap">
+                        Copy URL
                     </button>
-                    <p style="margin-top: 10px; color: #666; font-size: 0.9em;">Click to automatically add this repository to Paperback</p>
                 </div>
-
-                <div style="text-align: center; margin: 20px 0; color: #666;">
-                    <strong>— OR —</strong>
+                <div id="successMessage" class="hidden mt-3 p-3 bg-primary-500/20 border border-primary-500/50 text-primary-300 rounded-lg text-center">
+                    Copied to clipboard!
                 </div>
-
-                <h3 style="color: #667eea; margin-bottom: 15px;">Manual Installation</h3>
-                <ol>
-                    <li>Open <strong>Paperback</strong> app on your device</li>
-                    <li>Go to <strong>Settings</strong> → <strong>External Sources</strong></li>
-                    <li>Tap <strong>Add Repository</strong></li>
-                    <li>Copy and paste the URL below:</li>
-                </ol>
                 
-                <div class="install-url">
-                    <code id="repoUrl">https://mhaques.github.io/haques-paperback-extensions-0.9/0.9/stable/</code>
-                    <button class="copy-btn" onclick="copyUrl()">Copy URL</button>
-                </div>
-                <div class="success-message" id="successMessage">✓ Copied to clipboard!</div>
-                
-                <ol start="5">
-                    <li>Tap <strong>Add</strong> to add the repository</li>
-                    <li>Install your desired extensions from the list</li>
-                    <li>Start reading! 🎉</li>
+                <ol start="5" class="space-y-3 text-gray-300 mt-6">
+                    <li class="flex items-start gap-3">
+                        <span class="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-primary-500/20 text-primary-400 rounded-full text-sm font-bold">5</span>
+                        <span>Tap <strong class="text-white">Add</strong> to add the repository</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-primary-500/20 text-primary-400 rounded-full text-sm font-bold">6</span>
+                        <span>Install your desired extensions from the list</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-primary-500/20 text-primary-400 rounded-full text-sm font-bold">7</span>
+                        <span>Start reading!</span>
+                    </li>
                 </ol>
-            </div>
-
-            <div class="section">
-                <h2>📖 Available Sources</h2>
-                <div class="sources-grid">
-                    <div class="source-item">
-                        <h3>MangaBuddy</h3>
-                        <span class="badge">Manga</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="section">
-                <h2>ℹ️ About</h2>
-                <p>This is a custom fork of the Kakarot Extension repository, maintained by Haques. It currently includes MangaBuddy source for the Paperback reader app.</p>
-                <p style="margin-top: 15px;"><strong>Note:</strong> This extension is not affiliated with the MangaBuddy website.</p>
-            </div>
-
-            <div class="section">
-                <h2>⚠️ Requirements</h2>
-                <ul style="list-style: none; padding-left: 0;">
-                    <li>✓ Paperback 0.9.x or higher</li>
-                    <li>✓ iOS 15.0 or higher</li>
-                    <li>✓ Active internet connection</li>
-                </ul>
             </div>
         </div>
 
-        <footer>
-            <p>Based on <a href="https://github.com/karrot0/KakarotExtension" target="_blank">Kakarot Extension</a></p>
-            <p style="margin-top: 10px;">
-                <a href="https://github.com/mhaques/haques-paperback-extensions-0.9" target="_blank">View on GitHub</a>
+        <!-- Available Sources -->
+        <div class="mb-12 bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-sm rounded-2xl p-8 border border-primary-500/20 shadow-xl">
+            <h2 class="text-3xl font-bold mb-6 text-primary-400 border-b border-primary-500/30 pb-3">Available Sources</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="bg-slate-900/50 rounded-xl p-6 border border-slate-700 hover:border-primary-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary-500/20">
+                    <h3 class="text-xl font-semibold text-white mb-2">MangaBuddy</h3>
+                    <span class="inline-block px-3 py-1 bg-primary-500/20 text-primary-400 rounded-full text-sm font-medium border border-primary-500/30">Manga</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Section -->
+        <div class="mb-12 bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-sm rounded-2xl p-8 border border-primary-500/20 shadow-xl">
+            <h2 class="text-3xl font-bold mb-6 text-primary-400 border-b border-primary-500/30 pb-3">About</h2>
+            <p class="text-gray-300 mb-4 leading-relaxed">
+                This is a custom fork of the Kakarot Extension repository, maintained by Haques. It currently includes MangaBuddy source for the Paperback reader app.
             </p>
-            <p style="margin-top: 10px; opacity: 0.7;">MIT License © 2024</p>
+            <p class="text-gray-400 text-sm">
+                <strong class="text-gray-300">Note:</strong> This extension is not affiliated with the MangaBuddy website.
+            </p>
+        </div>
+
+        <!-- Requirements -->
+        <div class="mb-12 bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-sm rounded-2xl p-8 border border-primary-500/20 shadow-xl">
+            <h2 class="text-3xl font-bold mb-6 text-primary-400 border-b border-primary-500/30 pb-3">Requirements</h2>
+            <ul class="space-y-3">
+                <li class="flex items-center gap-3 text-gray-300">
+                    <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    Paperback 0.9.x or higher
+                </li>
+                <li class="flex items-center gap-3 text-gray-300">
+                    <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    iOS 15.0 or higher
+                </li>
+                <li class="flex items-center gap-3 text-gray-300">
+                    <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    Active internet connection
+                </li>
+            </ul>
+        </div>
+
+        <!-- Footer -->
+        <footer class="text-center py-8 text-gray-400 border-t border-slate-700">
+            <p class="mb-2">
+                Based on <a href="https://github.com/karrot0/KakarotExtension" target="_blank" class="text-primary-400 hover:text-primary-300 transition-colors">Kakarot Extension</a>
+            </p>
+            <p class="mb-2">
+                <a href="https://github.com/mhaques/haques-paperback-extensions-0.9" target="_blank" class="text-primary-400 hover:text-primary-300 transition-colors">View on GitHub</a>
+            </p>
+            <p class="text-sm text-gray-500">MIT License © 2024</p>
         </footer>
     </div>
 
@@ -267,9 +180,9 @@
             const url = document.getElementById('repoUrl').textContent;
             navigator.clipboard.writeText(url).then(() => {
                 const message = document.getElementById('successMessage');
-                message.style.display = 'block';
+                message.classList.remove('hidden');
                 setTimeout(() => {
-                    message.style.display = 'none';
+                    message.classList.add('hidden');
                 }, 3000);
             });
         }

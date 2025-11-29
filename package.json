@@ -1,7 +1,7 @@
 {
-  "name": "kakarotextension",
-  "description": "Kakarot extensions for Paperback",
-  "author": "Karrot",
+  "name": "haques-paperback-extensions",
+  "description": "Haques extensions for Paperback",
+  "author": "Haques",
   "keywords": [
     "Paperback",
     "extensions"
@@ -10,14 +10,14 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/karrot0/KakarotExtension.git"
+    "url": "git+https://github.com/mhaques/haques-paperback-extensions-0.9.git"
   },
   "bugs": {
-    "url": "https://github.com/karrot0/KakarotExtension/issues"
+    "url": "https://github.com/mhaques/haques-paperback-extensions-0.9/issues"
   },
-  "homepage": "https://github.com/karrot0/KakarotExtension#readme",
-  "repositoryName": "KakarotExtension",
-  "repositoryDescription": "Kakarot extensions for Paperback",
+  "homepage": "https://github.com/mhaques/haques-paperback-extensions-0.9#readme",
+  "repositoryName": "haques-paperback-extensions-0.9",
+  "repositoryDescription": "Haques extensions for Paperback",
   "private": true,
   "type": "module",
   "scripts": {

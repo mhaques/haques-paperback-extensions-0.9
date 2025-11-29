@@ -3,7 +3,7 @@ import { ContentRating, SourceInfo, SourceIntents } from "@paperback/types";
 export default {
   name: "Mangabuddy",
   description: "Extension that pulls content from mangabuddy.com.",
-  version: "1.0.0-alpha.4",
+  version: "1.0.0",
   icon: "icon.png",
   language: "en",
   contentRating: ContentRating.MATURE,
