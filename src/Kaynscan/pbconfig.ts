@@ -3,7 +3,7 @@ import { ContentRating, SourceInfo, SourceIntents } from "@paperback/types";
 export default {
   name: "Kaynscan",
   description: "Extension that pulls content from kaynscan.com.",
-  version: "1.0.6",
+  version: "1.0.7",
   icon: "icon.png",
   language: "en",
   contentRating: ContentRating.MATURE,

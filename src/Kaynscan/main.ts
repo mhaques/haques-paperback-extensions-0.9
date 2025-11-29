@@ -305,6 +305,12 @@ export class KaynscanExtension implements KaynscanImplementation {
       
       if (!chapterUrl) return;
 
+      // Skip locked/paywalled chapters - they usually have a lock icon or specific class
+      const hasLockIcon = link.find("svg").length > 0 || 
+                          link.find("[class*='lock']").length > 0 ||
+                          link.closest("div").find("[class*='lock']").length > 0;
+      if (hasLockIcon) return;
+
       // Extract full chapter ID from URL like /chapter/640d715df1f-640d77c18dc/
       const chapterIdMatch = chapterUrl.match(/\/chapter\/([^\/]+)/);
       if (!chapterIdMatch) return;
@@ -348,6 +354,16 @@ export class KaynscanExtension implements KaynscanImplementation {
       const request: Request = { url: chapterUrl, method: "GET" };
       const $ = await this.fetchCheerio(request);
 
+      // Check if chapter is locked/paywalled
+      const isLocked = $("body").text().toLowerCase().includes("locked") ||
+                       $("body").text().toLowerCase().includes("premium") ||
+                       $("[class*='lock']").length > 0 ||
+                       $("svg.lock").length > 0;
+      
+      if (isLocked) {
+        throw new Error("This chapter is locked or requires premium access");
+      }
+
       const pages: string[] = [];
 
       // Kaynscan images: <img src="https://cdn.meowing.org/..." class="lazy w-full myImage">
@@ -383,6 +399,11 @@ export class KaynscanExtension implements KaynscanImplementation {
             });
           }
         }
+      }
+
+      // If no pages found, throw error
+      if (pages.length === 0) {
+        throw new Error("No images found for this chapter. It may be locked or unavailable.");
       }
 
       return {
