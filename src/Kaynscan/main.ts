@@ -375,7 +375,8 @@ export class KaynscanExtension implements KaynscanImplementation {
       
       if (isNaN(chapterNumber) || chapterNumber === 0) return;
 
-      const chapterTitle = titleText || `Chapter ${chapterNumber}`;
+      // Clean chapter title - just use "Chapter X" format
+      const chapterTitle = `Chapter ${chapterNumber}`;
       
       // Date is in a div with class "text-xs text-white/50" inside the chapter link
       const dateText = link.find(".text-xs.text-white\\/50").first().text().trim();

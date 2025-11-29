@@ -17197,7 +17197,7 @@ var source = (() => {
           chapterNumber = Number(numMatch[1]);
         }
         if (isNaN(chapterNumber) || chapterNumber === 0) return;
-        const chapterTitle = titleText || `Chapter ${chapterNumber}`;
+        const chapterTitle = `Chapter ${chapterNumber}`;
         const dateText = link.find(".text-xs.text-white\\/50").first().text().trim();
         let publishDate = void 0;
         if (dateText) {
