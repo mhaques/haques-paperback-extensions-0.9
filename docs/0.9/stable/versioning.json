@@ -43,12 +43,7 @@
           "backgroundColor": "#C71585"
         }
       ],
-      "capabilities": [
-        4,
-        64,
-        1,
-        16
-      ],
+      "capabilities": [4, 64, 1, 16],
       "developers": [
         {
           "name": "Haques"
@@ -90,12 +85,7 @@
           "backgroundColor": "#C71585"
         }
       ],
-      "capabilities": [
-        4,
-        64,
-        1,
-        16
-      ],
+      "capabilities": [4, 64, 1, 16],
       "developers": [
         {
           "name": "Karrot"

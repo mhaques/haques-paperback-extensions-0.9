@@ -29,6 +29,6 @@ export default tseslint.config(
     },
   },
   {
-    ignores: ["bundles", "tools"],
+    ignores: ["bundles", "tools", "docs"],
   },
 );

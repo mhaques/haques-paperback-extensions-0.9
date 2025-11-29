@@ -326,9 +326,17 @@ export class MangabuddyExtension implements BuddyImplementation {
       });
 
       // exclude mangas with genre that are excluded
-      if (genres.length > 0 && typeof query.filters.find((filter) => filter.id == "genres")?.value === "object") {
-        const filterGenres = query.filters.find((filter) => filter.id == "genres")?.value as Record<string, "included" | "excluded">;
-        const hasExcluded = genres.some((genre) => filterGenres[genre] === "excluded");
+      if (
+        genres.length > 0 &&
+        typeof query.filters.find((filter) => filter.id == "genres")?.value ===
+          "object"
+      ) {
+        const filterGenres = query.filters.find(
+          (filter) => filter.id == "genres",
+        )?.value as Record<string, "included" | "excluded">;
+        const hasExcluded = genres.some(
+          (genre) => filterGenres[genre] === "excluded",
+        );
         if (hasExcluded) {
           return;
         }
@@ -436,29 +444,30 @@ export class MangabuddyExtension implements BuddyImplementation {
     const $ = await this.fetchCheerio(request);
     const chapters: Chapter[] = [];
 
-    
     $(".chapter-list li").each((_, element) => {
       const li = $(element);
       const link = li.find("a");
       const chapterUrl = link.attr("href") || "";
-      
+
       if (!chapterUrl) return;
 
       // Extract the full chapter path from URL (everything after the manga ID)
-      // Examples: 
+      // Examples:
       // /shark/chapter-79-running-away -> chapter-79-running-away
       // /shark/vol-1-chapter-63 -> vol-1-chapter-63
       // /shark/chapter-62 -> chapter-62
-      const pathMatch = chapterUrl.match(/^\/[^\/]+\/(.+)$/);
+      const pathMatch = chapterUrl.match(/^\/[^/]+\/(.+)$/);
       if (!pathMatch) return;
-      
+
       const chapterId = pathMatch[1]; // Full chapter path
 
       // Extract chapter number for sorting
       // Try multiple patterns: vol-X-chapter-Y, chapter-X-name, chapter-X
-      const numberMatch = chapterUrl.match(/(?:vol-\d+-)?chapter-(\d+(?:\.\d+)?)/i);
+      const numberMatch = chapterUrl.match(
+        /(?:vol-\d+-)?chapter-(\d+(?:\.\d+)?)/i,
+      );
       if (!numberMatch) return;
-      
+
       const chapterNumber = Number(numberMatch[1]);
       if (isNaN(chapterNumber)) return;
 

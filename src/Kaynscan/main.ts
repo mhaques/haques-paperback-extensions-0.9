@@ -109,7 +109,7 @@ export class KaynscanExtension implements KaynscanImplementation {
     const collectedIds = metadata?.collectedIds ?? [];
 
     let url = `${baseUrl}`;
-    
+
     if (section.id === "popular") {
       url = `${baseUrl}/series?page=${page}&order=popular`;
     } else if (section.id === "latest") {
@@ -125,22 +125,23 @@ export class KaynscanExtension implements KaynscanImplementation {
       const link = $(element);
       const href = link.attr("href") || "";
       const title = link.attr("title") || link.attr("alt") || "";
-      
+
       // Extract manga ID from URL like /series/640e17f407b/
-      const mangaIdMatch = href.match(/\/series\/([^\/\?]+)/);
+      const mangaIdMatch = href.match(/\/series\/([^/?]+)/);
       const mangaId = mangaIdMatch ? mangaIdMatch[1] : "";
-      
+
       // Skip invalid IDs: must be alphanumeric (with some symbols), no spaces, no query params
       if (!mangaId || mangaId === "" || !title) return;
-      if (mangaId.includes("?") || mangaId.includes(" ") || mangaId.length < 3) return;
+      if (mangaId.includes("?") || mangaId.includes(" ") || mangaId.length < 3)
+        return;
       if (collectedIds.includes(mangaId)) return;
-      
+
       // Get image from background-image style
       const imageDiv = link.find("div[style*='background-image']").first();
       const styleAttr = imageDiv.attr("style") || "";
       const imageMatch = styleAttr.match(/url\(([^)]+)\)/);
       let image = imageMatch ? imageMatch[1] : "";
-      
+
       // Clean up the image URL (remove quotes if present)
       image = image.replace(/['"]/g, "");
 
@@ -150,7 +151,9 @@ export class KaynscanExtension implements KaynscanImplementation {
           items.push({
             type: "featuredCarouselItem",
             mangaId: mangaId,
-            imageUrl: ensureHttps(image.startsWith("http") ? image : `${baseUrl}${image}`),
+            imageUrl: ensureHttps(
+              image.startsWith("http") ? image : `${baseUrl}${image}`,
+            ),
             title: title,
             metadata: undefined,
           });
@@ -158,7 +161,9 @@ export class KaynscanExtension implements KaynscanImplementation {
           items.push({
             type: "chapterUpdatesCarouselItem",
             mangaId: mangaId,
-            imageUrl: ensureHttps(image.startsWith("http") ? image : `${baseUrl}${image}`),
+            imageUrl: ensureHttps(
+              image.startsWith("http") ? image : `${baseUrl}${image}`,
+            ),
             title: title,
             chapterId: "1",
             metadata: undefined,
@@ -167,7 +172,8 @@ export class KaynscanExtension implements KaynscanImplementation {
       }
     });
 
-    const hasNextPage = $(".pagination .next, .next-page, a[rel='next']").length > 0;
+    const hasNextPage =
+      $(".pagination .next, .next-page, a[rel='next']").length > 0;
 
     return {
       items: items,
@@ -191,32 +197,36 @@ export class KaynscanExtension implements KaynscanImplementation {
       const link = $(element);
       const href = link.attr("href") || "";
       const title = link.attr("title") || link.attr("alt") || "";
-      
-      const mangaIdMatch = href.match(/\/series\/([^\/\?]+)/);
+
+      const mangaIdMatch = href.match(/\/series\/([^/?]+)/);
       const mangaId = mangaIdMatch ? mangaIdMatch[1] : "";
-      
+
       // Skip invalid IDs: must be alphanumeric (with some symbols), no spaces, no query params
       if (!mangaId || mangaId === "" || !title) return;
-      if (mangaId.includes("?") || mangaId.includes(" ") || mangaId.length < 3) return;
-      
+      if (mangaId.includes("?") || mangaId.includes(" ") || mangaId.length < 3)
+        return;
+
       const imageDiv = link.find("div[style*='background-image']").first();
       const styleAttr = imageDiv.attr("style") || "";
       const imageMatch = styleAttr.match(/url\(([^)]+)\)/);
       let image = imageMatch ? imageMatch[1] : "";
-      
+
       // Clean up the image URL (remove quotes if present)
       image = image.replace(/['"]/g, "");
 
       if (title && mangaId) {
         searchResults.push({
           mangaId: mangaId,
-          imageUrl: ensureHttps(image.startsWith("http") ? image : `${baseUrl}${image}`),
+          imageUrl: ensureHttps(
+            image.startsWith("http") ? image : `${baseUrl}${image}`,
+          ),
           title: title,
         });
       }
     });
 
-    const hasNextPage = $(".pagination .next, .next-page, a[rel='next']").length > 0;
+    const hasNextPage =
+      $(".pagination .next, .next-page, a[rel='next']").length > 0;
 
     return {
       items: searchResults,
@@ -233,10 +243,10 @@ export class KaynscanExtension implements KaynscanImplementation {
     const $ = await this.fetchCheerio(request);
 
     const title = $("h1").first().text().trim();
-    
+
     // Cover image - try multiple methods
     let image = "";
-    
+
     // Method 1: CSS variable in style attribute with --photoURL
     const coverDiv = $(".bg-\\[image\\:--photoURL\\]").first();
     const styleAttr = coverDiv.attr("style") || "";
@@ -244,7 +254,7 @@ export class KaynscanExtension implements KaynscanImplementation {
     if (imageMatch) {
       image = imageMatch[1];
     }
-    
+
     // Method 2: Look for any div with background-image in style
     if (!image) {
       $("div[style*='background-image']").each((_, element) => {
@@ -256,24 +266,29 @@ export class KaynscanExtension implements KaynscanImplementation {
         }
       });
     }
-    
+
     // Method 3: Look for img tag in the header/top area
     if (!image) {
-      const imgSrc = $("img[src*='cdn.meowing'], img[src*='wsrv.nl']").first().attr("src");
+      const imgSrc = $("img[src*='cdn.meowing'], img[src*='wsrv.nl']")
+        .first()
+        .attr("src");
       if (imgSrc) image = imgSrc;
     }
-    
+
     // Description - try multiple methods
     let description = "";
-    
+
     // Method 1: p tag with white-space style
     description = $("p[style*='white-space']").first().text().trim();
-    
+
     // Method 2: Look for p tag with pre-wrap class or in a specific container
     if (!description) {
-      description = $("p.pre-wrap, div.description p, .synopsis p").first().text().trim();
+      description = $("p.pre-wrap, div.description p, .synopsis p")
+        .first()
+        .text()
+        .trim();
     }
-    
+
     // Method 3: Any p tag that looks like a description (longer text)
     if (!description) {
       $("p").each((_, element) => {
@@ -284,7 +299,7 @@ export class KaynscanExtension implements KaynscanImplementation {
         }
       });
     }
-    
+
     let status = "UNKNOWN";
     // Status is in a div with bg-green-500/80 for ongoing
     const statusDiv = $(".bg-green-500\\/80");
@@ -299,7 +314,7 @@ export class KaynscanExtension implements KaynscanImplementation {
 
     const tags: TagSection[] = [];
     const genres: string[] = [];
-    
+
     // Genres are in <a href="/series/?genre=X"> tags with <span> inside
     $("a[href*='?genre=']").each((_, element) => {
       const genre = $(element).find("span").first().text().trim();
@@ -322,7 +337,9 @@ export class KaynscanExtension implements KaynscanImplementation {
       mangaInfo: {
         primaryTitle: title,
         secondaryTitles: [],
-        thumbnailUrl: ensureHttps(image.startsWith("http") ? image : `${baseUrl}${image}`),
+        thumbnailUrl: ensureHttps(
+          image.startsWith("http") ? image : `${baseUrl}${image}`,
+        ),
         synopsis: description,
         contentRating: ContentRating.EVERYONE,
         status: status as "ONGOING" | "COMPLETED" | "UNKNOWN",
@@ -344,52 +361,60 @@ export class KaynscanExtension implements KaynscanImplementation {
     $("a[href*='/chapter/']").each((_, element) => {
       const link = $(element);
       const chapterUrl = link.attr("href") || "";
-      
+
       if (!chapterUrl) return;
 
       // Skip locked/paywalled chapters - check for lock overlay div and coin cost
       // Locked chapters have: <div class="...absolute..."><img src="...lock.svg"></div>
-      const hasLockOverlay = link.find("div.absolute").find("img[src*='lock']").length > 0;
-      
-      // Also check coin cost - locked chapters have c="75" or higher, free chapters have c="1" 
+      const hasLockOverlay =
+        link.find("div.absolute").find("img[src*='lock']").length > 0;
+
+      // Also check coin cost - locked chapters have c="75" or higher, free chapters have c="1"
       const coinCost = link.attr("c") || "1";
       const isLocked = hasLockOverlay || parseInt(coinCost) > 1;
-      
+
       if (isLocked) return;
 
       // Extract full chapter ID from URL like /chapter/640d715df1f-640d77c18dc/
-      const chapterIdMatch = chapterUrl.match(/\/chapter\/([^\/]+)/);
+      const chapterIdMatch = chapterUrl.match(/\/chapter\/([^/]+)/);
       if (!chapterIdMatch) return;
-      
+
       const chapterId = chapterIdMatch[1];
-      
+
       // Get chapter number from 'c' attribute or title - note: 'c' is actually the order, not chapter number
-      const titleText = link.attr("title") || link.find(".text-sm").text().trim();
-      
+      const titleText =
+        link.attr("title") || link.find(".text-sm").text().trim();
+
       let chapterNumber = 0;
       // Extract chapter number from title like "Chapter 145"
       const numMatch = titleText.match(/Chapter\s+(\d+(?:\.\d+)?)/i);
       if (numMatch) {
         chapterNumber = Number(numMatch[1]);
       }
-      
+
       if (isNaN(chapterNumber) || chapterNumber === 0) return;
 
       // Clean chapter title - just use "Chapter X" format
       const chapterTitle = `Chapter ${chapterNumber}`;
-      
+
       // Date is in a div with class "text-xs text-white/50" inside the chapter link
-      const dateText = link.find(".text-xs.text-white\\/50").first().text().trim();
-      
+      const dateText = link
+        .find(".text-xs.text-white\\/50")
+        .first()
+        .text()
+        .trim();
+
       // Parse relative time like "9 hours ago", "1 day ago", etc.
       let publishDate: Date | undefined = undefined;
       if (dateText) {
         const now = new Date();
-        const timeMatch = dateText.match(/(\d+)\s+(second|minute|hour|day|week|month|year)s?\s+ago/i);
+        const timeMatch = dateText.match(
+          /(\d+)\s+(second|minute|hour|day|week|month|year)s?\s+ago/i,
+        );
         if (timeMatch) {
           const value = parseInt(timeMatch[1]);
           const unit = timeMatch[2].toLowerCase();
-          
+
           switch (unit) {
             case "second":
               publishDate = new Date(now.getTime() - value * 1000);
@@ -401,16 +426,24 @@ export class KaynscanExtension implements KaynscanImplementation {
               publishDate = new Date(now.getTime() - value * 60 * 60 * 1000);
               break;
             case "day":
-              publishDate = new Date(now.getTime() - value * 24 * 60 * 60 * 1000);
+              publishDate = new Date(
+                now.getTime() - value * 24 * 60 * 60 * 1000,
+              );
               break;
             case "week":
-              publishDate = new Date(now.getTime() - value * 7 * 24 * 60 * 60 * 1000);
+              publishDate = new Date(
+                now.getTime() - value * 7 * 24 * 60 * 60 * 1000,
+              );
               break;
             case "month":
-              publishDate = new Date(now.getTime() - value * 30 * 24 * 60 * 60 * 1000);
+              publishDate = new Date(
+                now.getTime() - value * 30 * 24 * 60 * 60 * 1000,
+              );
               break;
             case "year":
-              publishDate = new Date(now.getTime() - value * 365 * 24 * 60 * 60 * 1000);
+              publishDate = new Date(
+                now.getTime() - value * 365 * 24 * 60 * 60 * 1000,
+              );
               break;
           }
         }
@@ -444,13 +477,13 @@ export class KaynscanExtension implements KaynscanImplementation {
       $("img.myImage").each((_, element) => {
         const img = $(element);
         let imageUrl = "";
-        
+
         // First try src attribute
         const src = img.attr("src") || "";
         if (src && src.includes("cdn.meowing.org")) {
           imageUrl = src;
         }
-        
+
         // If no valid src, build URL from uid attribute
         if (!imageUrl) {
           const uid = img.attr("uid") || "";
@@ -458,7 +491,7 @@ export class KaynscanExtension implements KaynscanImplementation {
             imageUrl = `https://cdn.meowing.org/uploads/${uid}`;
           }
         }
-        
+
         if (imageUrl) {
           pages.push(ensureHttps(imageUrl));
         }
@@ -470,7 +503,7 @@ export class KaynscanExtension implements KaynscanImplementation {
           const img = $(element);
           const src = img.attr("src") || "";
           const uid = img.attr("uid") || "";
-          
+
           if (src && src.includes("cdn.meowing.org")) {
             pages.push(ensureHttps(src));
           } else if (uid) {
@@ -481,7 +514,7 @@ export class KaynscanExtension implements KaynscanImplementation {
 
       // Also check for images in script tags if still none found
       if (pages.length === 0) {
-        const scriptContent = $('script').html() || "";
+        const scriptContent = $("script").html() || "";
         const imageMatch = scriptContent.match(/images\s*=\s*\[(.*?)\]/s);
         if (imageMatch) {
           const imagesStr = imageMatch[1];
@@ -489,7 +522,13 @@ export class KaynscanExtension implements KaynscanImplementation {
           if (imageUrls) {
             imageUrls.forEach((url) => {
               const cleanUrl = url.replace(/"/g, "");
-              pages.push(ensureHttps(cleanUrl.startsWith("http") ? cleanUrl : `${baseUrl}${cleanUrl}`));
+              pages.push(
+                ensureHttps(
+                  cleanUrl.startsWith("http")
+                    ? cleanUrl
+                    : `${baseUrl}${cleanUrl}`,
+                ),
+              );
             });
           }
         }
@@ -497,7 +536,9 @@ export class KaynscanExtension implements KaynscanImplementation {
 
       // If no pages found, throw error
       if (pages.length === 0) {
-        throw new Error("No images found for this chapter. It may be locked or unavailable.");
+        throw new Error(
+          "No images found for this chapter. It may be locked or unavailable.",
+        );
       }
 
       return {

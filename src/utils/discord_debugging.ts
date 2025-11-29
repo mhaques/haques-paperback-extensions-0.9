@@ -9,7 +9,7 @@ export async function postToDiscordWebhook(message: string) {
   };
 
   try {
-    const [response, data] = await Application.scheduleRequest(request);
+    const [response] = await Application.scheduleRequest(request);
     if (response.status < 200 || response.status >= 300) {
       throw new Error(`Discord webhook error: ${response.status}`);
     }

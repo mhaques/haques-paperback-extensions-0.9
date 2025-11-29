@@ -1,0 +1,4 @@
+# Ignore bundled output files
+docs/
+bundles/
+node_modules/
