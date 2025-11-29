@@ -2209,7 +2209,7 @@ var source = (() => {
       init_buffer();
       Object.defineProperty(exports, "__esModule", { value: true });
       exports.CloudflareError = void 0;
-      var CloudflareError = class extends Error {
+      var CloudflareError2 = class extends Error {
         resolutionRequest;
         type = "cloudflareError";
         constructor(resolutionRequest, message = "Cloudflare bypass is required") {
@@ -2217,7 +2217,7 @@ var source = (() => {
           this.resolutionRequest = resolutionRequest;
         }
       };
-      exports.CloudflareError = CloudflareError;
+      exports.CloudflareError = CloudflareError2;
     }
   });
 
@@ -16960,11 +16960,9 @@ var source = (() => {
         this.cookieStorageInterceptor.setCookie(cookie);
       }
     }
-    async checkCloudflareStatus() {
-      const request = { url: baseUrl, method: "GET" };
-      const [response] = await Application.scheduleRequest(request);
-      if (response.status === 403 || response.status === 503) {
-        throw new Error("CLOUDFLARE_BYPASS_REQUIRED");
+    checkCloudflareStatus(status) {
+      if (status == 503 || status == 403) {
+        throw new import_types3.CloudflareError({ url: baseUrl, method: "GET" });
       }
     }
     async getDiscoverSections() {
@@ -16985,7 +16983,6 @@ var source = (() => {
       return [];
     }
     async getDiscoverSectionItems(section, metadata) {
-      await this.checkCloudflareStatus();
       const page = metadata?.page ?? 1;
       const collectedIds = metadata?.collectedIds ?? [];
       let url = `${baseUrl}`;
@@ -17039,7 +17036,6 @@ var source = (() => {
       };
     }
     async getSearchResults(query, metadata) {
-      await this.checkCloudflareStatus();
       const page = metadata?.page ?? 1;
       const searchUrl = `${baseUrl}/search?q=${encodeURIComponent(query.title || "")}&page=${page}`;
       const request = { url: searchUrl, method: "GET" };
@@ -17072,7 +17068,6 @@ var source = (() => {
       };
     }
     async getMangaDetails(mangaId) {
-      await this.checkCloudflareStatus();
       const request = {
         url: `${baseUrl}/series/${mangaId}`,
         method: "GET"
@@ -17118,7 +17113,6 @@ var source = (() => {
       };
     }
     async getChapters(sourceManga) {
-      await this.checkCloudflareStatus();
       const request = {
         url: `${baseUrl}/series/${sourceManga.mangaId}`,
         method: "GET"
@@ -17158,7 +17152,6 @@ var source = (() => {
       return chapters.sort((a, b) => b.chapNum - a.chapNum);
     }
     async getChapterDetails(chapter) {
-      await this.checkCloudflareStatus();
       const chapterUrl = `${baseUrl}/chapter/${chapter.chapterId}`;
       try {
         const request = { url: chapterUrl, method: "GET" };
@@ -17199,6 +17192,7 @@ var source = (() => {
     }
     async fetchCheerio(request) {
       const [response, data2] = await Application.scheduleRequest(request);
+      this.checkCloudflareStatus(response.status);
       const htmlStr = Application.arrayBufferToUTF8String(data2);
       const dom = parseDocument(htmlStr);
       return load(dom);
