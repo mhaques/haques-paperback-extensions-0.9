@@ -16997,7 +16997,6 @@ var source = (() => {
     async initialise() {
       this.requestManager.registerInterceptor();
       this.globalRateLimiter.registerInterceptor();
-      this.requestManager?.registerInterceptor();
     }
     async getDiscoverSections() {
       return [

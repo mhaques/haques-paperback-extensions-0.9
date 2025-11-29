@@ -53,7 +53,6 @@ export class MangabuddyExtension implements BuddyImplementation {
   async initialise(): Promise<void> {
     this.requestManager.registerInterceptor();
     this.globalRateLimiter.registerInterceptor();
-    this.requestManager?.registerInterceptor();
   }
 
   async getDiscoverSections(): Promise<DiscoverSection[]> {
