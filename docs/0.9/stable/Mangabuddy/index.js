@@ -17304,11 +17304,24 @@ var source = (() => {
         const li = $2(element);
         const link = li.find("a");
         const chapterUrl = link.attr("href") || "";
+        if (!chapterUrl) {
+          console.log("Skipping chapter with no URL");
+          return;
+        }
         const chapterMatch = chapterUrl.match(/\/chapter-(\d+(?:\.\d+)?)/i);
-        const chapterNumber = chapterMatch && !isNaN(Number(chapterMatch[1])) ? Number(chapterMatch[1]) : 0;
-        const chapterId = chapterMatch ? chapterMatch[1] : "0";
+        if (!chapterMatch) {
+          console.log(`Skipping chapter with unrecognized URL format: ${chapterUrl}`);
+          return;
+        }
+        const chapterId = chapterMatch[1];
+        const chapterNumber = Number(chapterId);
+        if (isNaN(chapterNumber) || chapterNumber === 0) {
+          console.log(`Skipping chapter with invalid number: ${chapterId} from URL ${chapterUrl}`);
+          return;
+        }
         const chapterTitle = link.find(".chapter-title").text().trim();
         const dateText = link.find("time.chapter-update").text().trim();
+        console.log(`Found chapter: ${chapterTitle} (Ch. ${chapterNumber}) - URL: ${chapterUrl}`);
         chapters.push({
           chapterId,
           title: chapterTitle,
@@ -17319,6 +17332,7 @@ var source = (() => {
           langCode: "\u{1F1EC}\u{1F1E7}"
         });
       });
+      console.log(`Total chapters found: ${chapters.length}`);
       return chapters.sort((a, b) => b.chapNum - a.chapNum);
     }
     async getChapterDetails(chapter) {
