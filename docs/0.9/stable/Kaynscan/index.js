@@ -16934,6 +16934,12 @@ var source = (() => {
 
   // src/Kaynscan/main.ts
   var baseUrl = "https://kaynscan.com";
+  function ensureHttps(url) {
+    if (url.startsWith("http://")) {
+      return url.replace("http://", "https://");
+    }
+    return url;
+  }
   var KaynscanExtension = class {
     requestManager = new KaynscanInterceptor("main");
     globalRateLimiter = new import_types3.BasicRateLimiter("rateLimiter", {
@@ -17014,7 +17020,7 @@ var source = (() => {
             items.push({
               type: "featuredCarouselItem",
               mangaId,
-              imageUrl: image.startsWith("http") ? image : `${baseUrl}${image}`,
+              imageUrl: ensureHttps(image.startsWith("http") ? image : `${baseUrl}${image}`),
               title,
               metadata: void 0
             });
@@ -17022,7 +17028,7 @@ var source = (() => {
             items.push({
               type: "chapterUpdatesCarouselItem",
               mangaId,
-              imageUrl: image.startsWith("http") ? image : `${baseUrl}${image}`,
+              imageUrl: ensureHttps(image.startsWith("http") ? image : `${baseUrl}${image}`),
               title,
               chapterId: "1",
               metadata: void 0
@@ -17058,7 +17064,7 @@ var source = (() => {
         if (title && mangaId) {
           searchResults.push({
             mangaId,
-            imageUrl: image.startsWith("http") ? image : `${baseUrl}${image}`,
+            imageUrl: ensureHttps(image.startsWith("http") ? image : `${baseUrl}${image}`),
             title
           });
         }
@@ -17106,7 +17112,7 @@ var source = (() => {
         mangaInfo: {
           primaryTitle: title,
           secondaryTitles: [],
-          thumbnailUrl: image.startsWith("http") ? image : `${baseUrl}${image}`,
+          thumbnailUrl: ensureHttps(image.startsWith("http") ? image : `${baseUrl}${image}`),
           synopsis: description,
           contentRating: import_types3.ContentRating.EVERYONE,
           status,

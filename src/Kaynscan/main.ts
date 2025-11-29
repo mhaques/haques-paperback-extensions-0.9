@@ -31,6 +31,14 @@ import { KaynscanInterceptor } from "./KaynscanInterceptor";
 
 const baseUrl = "https://kaynscan.com";
 
+// Helper function to ensure URLs use HTTPS
+function ensureHttps(url: string): string {
+  if (url.startsWith("http://")) {
+    return url.replace("http://", "https://");
+  }
+  return url;
+}
+
 type KaynscanImplementation = Extension &
   SearchResultsProviding &
   MangaProviding &
@@ -141,7 +149,7 @@ export class KaynscanExtension implements KaynscanImplementation {
           items.push({
             type: "featuredCarouselItem",
             mangaId: mangaId,
-            imageUrl: image.startsWith("http") ? image : `${baseUrl}${image}`,
+            imageUrl: ensureHttps(image.startsWith("http") ? image : `${baseUrl}${image}`),
             title: title,
             metadata: undefined,
           });
@@ -149,7 +157,7 @@ export class KaynscanExtension implements KaynscanImplementation {
           items.push({
             type: "chapterUpdatesCarouselItem",
             mangaId: mangaId,
-            imageUrl: image.startsWith("http") ? image : `${baseUrl}${image}`,
+            imageUrl: ensureHttps(image.startsWith("http") ? image : `${baseUrl}${image}`),
             title: title,
             chapterId: "1",
             metadata: undefined,
@@ -201,7 +209,7 @@ export class KaynscanExtension implements KaynscanImplementation {
       if (title && mangaId) {
         searchResults.push({
           mangaId: mangaId,
-          imageUrl: image.startsWith("http") ? image : `${baseUrl}${image}`,
+          imageUrl: ensureHttps(image.startsWith("http") ? image : `${baseUrl}${image}`),
           title: title,
         });
       }
@@ -260,7 +268,7 @@ export class KaynscanExtension implements KaynscanImplementation {
       mangaInfo: {
         primaryTitle: title,
         secondaryTitles: [],
-        thumbnailUrl: image.startsWith("http") ? image : `${baseUrl}${image}`,
+        thumbnailUrl: ensureHttps(image.startsWith("http") ? image : `${baseUrl}${image}`),
         synopsis: description,
         contentRating: ContentRating.EVERYONE,
         status: status as "ONGOING" | "COMPLETED" | "UNKNOWN",
