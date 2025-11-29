@@ -16980,11 +16980,14 @@ var source = (() => {
         const title = link.attr("title") || link.attr("alt") || "";
         const mangaIdMatch = href.match(/\/series\/([^\/]+)/);
         const mangaId = mangaIdMatch ? mangaIdMatch[1] : "";
+        if (!mangaId || mangaId === "" || !title) return;
+        if (collectedIds.includes(mangaId)) return;
         const imageDiv = link.find("div[style*='background-image']").first();
         const styleAttr = imageDiv.attr("style") || "";
         const imageMatch = styleAttr.match(/url\(([^)]+)\)/);
-        const image = imageMatch ? imageMatch[1] : "";
-        if (title && mangaId && !collectedIds.includes(mangaId)) {
+        let image = imageMatch ? imageMatch[1] : "";
+        image = image.replace(/['"]/g, "");
+        if (mangaId && title) {
           collectedIds.push(mangaId);
           if (section.id === "popular") {
             items.push({
@@ -17024,10 +17027,12 @@ var source = (() => {
         const title = link.attr("title") || link.attr("alt") || "";
         const mangaIdMatch = href.match(/\/series\/([^\/]+)/);
         const mangaId = mangaIdMatch ? mangaIdMatch[1] : "";
+        if (!mangaId || mangaId === "" || !title) return;
         const imageDiv = link.find("div[style*='background-image']").first();
         const styleAttr = imageDiv.attr("style") || "";
         const imageMatch = styleAttr.match(/url\(([^)]+)\)/);
-        const image = imageMatch ? imageMatch[1] : "";
+        let image = imageMatch ? imageMatch[1] : "";
+        image = image.replace(/['"]/g, "");
         if (title && mangaId) {
           searchResults.push({
             mangaId,

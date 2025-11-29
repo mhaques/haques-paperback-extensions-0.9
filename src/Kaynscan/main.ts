@@ -94,13 +94,20 @@ export class KaynscanExtension implements KaynscanImplementation {
       const mangaIdMatch = href.match(/\/series\/([^\/]+)/);
       const mangaId = mangaIdMatch ? mangaIdMatch[1] : "";
       
+      // Skip if no manga ID or if it's just "series" (the browse page link)
+      if (!mangaId || mangaId === "" || !title) return;
+      if (collectedIds.includes(mangaId)) return;
+      
       // Get image from background-image style
       const imageDiv = link.find("div[style*='background-image']").first();
       const styleAttr = imageDiv.attr("style") || "";
       const imageMatch = styleAttr.match(/url\(([^)]+)\)/);
-      const image = imageMatch ? imageMatch[1] : "";
+      let image = imageMatch ? imageMatch[1] : "";
+      
+      // Clean up the image URL (remove quotes if present)
+      image = image.replace(/['"]/g, "");
 
-      if (title && mangaId && !collectedIds.includes(mangaId)) {
+      if (mangaId && title) {
         collectedIds.push(mangaId);
         if (section.id === "popular") {
           items.push({
@@ -151,10 +158,16 @@ export class KaynscanExtension implements KaynscanImplementation {
       const mangaIdMatch = href.match(/\/series\/([^\/]+)/);
       const mangaId = mangaIdMatch ? mangaIdMatch[1] : "";
       
+      // Skip if no manga ID or if it's just "series" (the browse page link)
+      if (!mangaId || mangaId === "" || !title) return;
+      
       const imageDiv = link.find("div[style*='background-image']").first();
       const styleAttr = imageDiv.attr("style") || "";
       const imageMatch = styleAttr.match(/url\(([^)]+)\)/);
-      const image = imageMatch ? imageMatch[1] : "";
+      let image = imageMatch ? imageMatch[1] : "";
+      
+      // Clean up the image URL (remove quotes if present)
+      image = image.replace(/['"]/g, "");
 
       if (title && mangaId) {
         searchResults.push({
