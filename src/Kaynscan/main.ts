@@ -84,14 +84,21 @@ export class KaynscanExtension implements KaynscanImplementation {
     const $ = await this.fetchCheerio(request);
     const items: DiscoverSectionItem[] = [];
 
-    // Common selectors - adjust based on actual website structure
-    $(".manga-item, .series-item, .book-item").each((_, element) => {
-      const item = $(element);
-      const link = item.find("a").first();
-      const title = link.attr("title") || item.find(".title, h3, h4").text().trim();
-      const image = item.find("img").attr("src") || item.find("img").attr("data-src") || "";
+    // Kaynscan manga cards: <a href="/series/{id}/" class="grid border aspect-[0.75/1]...">
+    $("a[href*='/series/']").each((_, element) => {
+      const link = $(element);
       const href = link.attr("href") || "";
-      const mangaId = href.split("/").filter(Boolean).pop() || "";
+      const title = link.attr("title") || link.attr("alt") || "";
+      
+      // Extract manga ID from URL like /series/640e17f407b/
+      const mangaIdMatch = href.match(/\/series\/([^\/]+)/);
+      const mangaId = mangaIdMatch ? mangaIdMatch[1] : "";
+      
+      // Get image from background-image style
+      const imageDiv = link.find("div[style*='background-image']").first();
+      const styleAttr = imageDiv.attr("style") || "";
+      const imageMatch = styleAttr.match(/url\(([^)]+)\)/);
+      const image = imageMatch ? imageMatch[1] : "";
 
       if (title && mangaId && !collectedIds.includes(mangaId)) {
         collectedIds.push(mangaId);
@@ -116,7 +123,7 @@ export class KaynscanExtension implements KaynscanImplementation {
       }
     });
 
-    const hasNextPage = $(".pagination .next, .next-page").length > 0;
+    const hasNextPage = $(".pagination .next, .next-page, a[rel='next']").length > 0;
 
     return {
       items: items,
@@ -135,13 +142,19 @@ export class KaynscanExtension implements KaynscanImplementation {
     const $ = await this.fetchCheerio(request);
     const searchResults: SearchResultItem[] = [];
 
-    $(".manga-item, .series-item, .search-item").each((_, element) => {
-      const item = $(element);
-      const link = item.find("a").first();
-      const title = link.attr("title") || item.find(".title, h3, h4").text().trim();
-      const image = item.find("img").attr("src") || item.find("img").attr("data-src") || "";
+    // Same structure as homepage manga cards
+    $("a[href*='/series/']").each((_, element) => {
+      const link = $(element);
       const href = link.attr("href") || "";
-      const mangaId = href.split("/").filter(Boolean).pop() || "";
+      const title = link.attr("title") || link.attr("alt") || "";
+      
+      const mangaIdMatch = href.match(/\/series\/([^\/]+)/);
+      const mangaId = mangaIdMatch ? mangaIdMatch[1] : "";
+      
+      const imageDiv = link.find("div[style*='background-image']").first();
+      const styleAttr = imageDiv.attr("style") || "";
+      const imageMatch = styleAttr.match(/url\(([^)]+)\)/);
+      const image = imageMatch ? imageMatch[1] : "";
 
       if (title && mangaId) {
         searchResults.push({
@@ -152,7 +165,7 @@ export class KaynscanExtension implements KaynscanImplementation {
       }
     });
 
-    const hasNextPage = $(".pagination .next, .next-page").length > 0;
+    const hasNextPage = $(".pagination .next, .next-page, a[rel='next']").length > 0;
 
     return {
       items: searchResults,
@@ -223,26 +236,38 @@ export class KaynscanExtension implements KaynscanImplementation {
     const $ = await this.fetchCheerio(request);
     const chapters: Chapter[] = [];
 
-    $(".chapter-list li, .chapter-item, ul.chapters li").each((_, element) => {
-      const item = $(element);
-      const link = item.find("a").first();
+    // Kaynscan chapter links: <a href="/chapter/640d715df1f-640d77c18dc/" c="1">
+    $("a[href*='/chapter/']").each((_, element) => {
+      const link = $(element);
       const chapterUrl = link.attr("href") || "";
       
       if (!chapterUrl) return;
 
-      // Extract chapter ID and number from URL
-      const pathMatch = chapterUrl.match(/\/chapter-(\d+(?:\.\d+)?)/i) ||
-                       chapterUrl.match(/\/(\d+(?:\.\d+)?)$/);
+      // Extract full chapter ID from URL like /chapter/640d715df1f-640d77c18dc/
+      const chapterIdMatch = chapterUrl.match(/\/chapter\/([^\/]+)/);
+      if (!chapterIdMatch) return;
       
-      if (!pathMatch) return;
+      const chapterId = chapterIdMatch[1];
       
-      const chapterId = pathMatch[1];
-      const chapterNumber = Number(chapterId);
+      // Get chapter number from 'c' attribute or title
+      const chapterNumAttr = link.attr("c");
+      const titleText = link.attr("title") || link.find(".text-sm").text().trim();
       
-      if (isNaN(chapterNumber)) return;
+      let chapterNumber = 0;
+      if (chapterNumAttr) {
+        chapterNumber = Number(chapterNumAttr);
+      } else {
+        const numMatch = titleText.match(/(?:Chapter|Ch\.?)\s*(\d+(?:\.\d+)?)/i);
+        if (numMatch) {
+          chapterNumber = Number(numMatch[1]);
+        }
+      }
+      
+      if (isNaN(chapterNumber) || chapterNumber === 0) return;
 
-      const chapterTitle = link.text().trim() || `Chapter ${chapterNumber}`;
-      const dateText = item.find(".date, .time, time").text().trim();
+      const chapterTitle = titleText || `Chapter ${chapterNumber}`;
+      const dateText = link.find(".text-xs.text-white\\/50").text().trim() || 
+                       link.attr("d") || "";
 
       chapters.push({
         chapterId: chapterId,
@@ -258,7 +283,8 @@ export class KaynscanExtension implements KaynscanImplementation {
   }
 
   async getChapterDetails(chapter: Chapter): Promise<ChapterDetails> {
-    const chapterUrl = `${baseUrl}/series/${chapter.sourceManga.mangaId}/chapter-${chapter.chapterId}`;
+    // Chapter URL format: /chapter/640d715df1f-640d77c18dc/
+    const chapterUrl = `${baseUrl}/chapter/${chapter.chapterId}`;
 
     try {
       const request: Request = { url: chapterUrl, method: "GET" };
@@ -266,15 +292,15 @@ export class KaynscanExtension implements KaynscanImplementation {
 
       const pages: string[] = [];
 
-      // Try multiple common patterns for image extraction
-      $(".chapter-img img, .page-img img, .reader-img img, img.img-responsive").each((_, element) => {
+      // Kaynscan images: <img src="https://cdn.meowing.org/..." class="lazy w-full myImage">
+      $("img.myImage, img[src*='cdn.meowing'], img[src*='kaynscan']").each((_, element) => {
         const src = $(element).attr("src") || $(element).attr("data-src") || "";
-        if (src) {
-          pages.push(src.startsWith("http") ? src : `${baseUrl}${src}`);
+        if (src && src.startsWith("http")) {
+          pages.push(src);
         }
       });
 
-      // Also check for images in script tags
+      // Also check for images in script tags if none found
       if (pages.length === 0) {
         const scriptContent = $('script').html() || "";
         const imageMatch = scriptContent.match(/images\s*=\s*\[(.*?)\]/s);

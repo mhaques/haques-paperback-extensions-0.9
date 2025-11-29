@@ -16974,13 +16974,16 @@ var source = (() => {
       const request = { url, method: "GET" };
       const $2 = await this.fetchCheerio(request);
       const items = [];
-      $2(".manga-item, .series-item, .book-item").each((_, element) => {
-        const item = $2(element);
-        const link = item.find("a").first();
-        const title = link.attr("title") || item.find(".title, h3, h4").text().trim();
-        const image = item.find("img").attr("src") || item.find("img").attr("data-src") || "";
+      $2("a[href*='/series/']").each((_, element) => {
+        const link = $2(element);
         const href = link.attr("href") || "";
-        const mangaId = href.split("/").filter(Boolean).pop() || "";
+        const title = link.attr("title") || link.attr("alt") || "";
+        const mangaIdMatch = href.match(/\/series\/([^\/]+)/);
+        const mangaId = mangaIdMatch ? mangaIdMatch[1] : "";
+        const imageDiv = link.find("div[style*='background-image']").first();
+        const styleAttr = imageDiv.attr("style") || "";
+        const imageMatch = styleAttr.match(/url\(([^)]+)\)/);
+        const image = imageMatch ? imageMatch[1] : "";
         if (title && mangaId && !collectedIds.includes(mangaId)) {
           collectedIds.push(mangaId);
           if (section.id === "popular") {
@@ -17003,7 +17006,7 @@ var source = (() => {
           }
         }
       });
-      const hasNextPage = $2(".pagination .next, .next-page").length > 0;
+      const hasNextPage = $2(".pagination .next, .next-page, a[rel='next']").length > 0;
       return {
         items,
         metadata: hasNextPage ? { page: page + 1, collectedIds } : void 0
@@ -17015,13 +17018,16 @@ var source = (() => {
       const request = { url: searchUrl, method: "GET" };
       const $2 = await this.fetchCheerio(request);
       const searchResults = [];
-      $2(".manga-item, .series-item, .search-item").each((_, element) => {
-        const item = $2(element);
-        const link = item.find("a").first();
-        const title = link.attr("title") || item.find(".title, h3, h4").text().trim();
-        const image = item.find("img").attr("src") || item.find("img").attr("data-src") || "";
+      $2("a[href*='/series/']").each((_, element) => {
+        const link = $2(element);
         const href = link.attr("href") || "";
-        const mangaId = href.split("/").filter(Boolean).pop() || "";
+        const title = link.attr("title") || link.attr("alt") || "";
+        const mangaIdMatch = href.match(/\/series\/([^\/]+)/);
+        const mangaId = mangaIdMatch ? mangaIdMatch[1] : "";
+        const imageDiv = link.find("div[style*='background-image']").first();
+        const styleAttr = imageDiv.attr("style") || "";
+        const imageMatch = styleAttr.match(/url\(([^)]+)\)/);
+        const image = imageMatch ? imageMatch[1] : "";
         if (title && mangaId) {
           searchResults.push({
             mangaId,
@@ -17030,7 +17036,7 @@ var source = (() => {
           });
         }
       });
-      const hasNextPage = $2(".pagination .next, .next-page").length > 0;
+      const hasNextPage = $2(".pagination .next, .next-page, a[rel='next']").length > 0;
       return {
         items: searchResults,
         metadata: hasNextPage ? { page: page + 1 } : void 0
@@ -17088,18 +17094,27 @@ var source = (() => {
       };
       const $2 = await this.fetchCheerio(request);
       const chapters = [];
-      $2(".chapter-list li, .chapter-item, ul.chapters li").each((_, element) => {
-        const item = $2(element);
-        const link = item.find("a").first();
+      $2("a[href*='/chapter/']").each((_, element) => {
+        const link = $2(element);
         const chapterUrl = link.attr("href") || "";
         if (!chapterUrl) return;
-        const pathMatch = chapterUrl.match(/\/chapter-(\d+(?:\.\d+)?)/i) || chapterUrl.match(/\/(\d+(?:\.\d+)?)$/);
-        if (!pathMatch) return;
-        const chapterId = pathMatch[1];
-        const chapterNumber = Number(chapterId);
-        if (isNaN(chapterNumber)) return;
-        const chapterTitle = link.text().trim() || `Chapter ${chapterNumber}`;
-        const dateText = item.find(".date, .time, time").text().trim();
+        const chapterIdMatch = chapterUrl.match(/\/chapter\/([^\/]+)/);
+        if (!chapterIdMatch) return;
+        const chapterId = chapterIdMatch[1];
+        const chapterNumAttr = link.attr("c");
+        const titleText = link.attr("title") || link.find(".text-sm").text().trim();
+        let chapterNumber = 0;
+        if (chapterNumAttr) {
+          chapterNumber = Number(chapterNumAttr);
+        } else {
+          const numMatch = titleText.match(/(?:Chapter|Ch\.?)\s*(\d+(?:\.\d+)?)/i);
+          if (numMatch) {
+            chapterNumber = Number(numMatch[1]);
+          }
+        }
+        if (isNaN(chapterNumber) || chapterNumber === 0) return;
+        const chapterTitle = titleText || `Chapter ${chapterNumber}`;
+        const dateText = link.find(".text-xs.text-white\\/50").text().trim() || link.attr("d") || "";
         chapters.push({
           chapterId,
           title: chapterTitle,
@@ -17112,15 +17127,15 @@ var source = (() => {
       return chapters.sort((a, b) => b.chapNum - a.chapNum);
     }
     async getChapterDetails(chapter) {
-      const chapterUrl = `${baseUrl}/series/${chapter.sourceManga.mangaId}/chapter-${chapter.chapterId}`;
+      const chapterUrl = `${baseUrl}/chapter/${chapter.chapterId}`;
       try {
         const request = { url: chapterUrl, method: "GET" };
         const $2 = await this.fetchCheerio(request);
         const pages = [];
-        $2(".chapter-img img, .page-img img, .reader-img img, img.img-responsive").each((_, element) => {
+        $2("img.myImage, img[src*='cdn.meowing'], img[src*='kaynscan']").each((_, element) => {
           const src = $2(element).attr("src") || $2(element).attr("data-src") || "";
-          if (src) {
-            pages.push(src.startsWith("http") ? src : `${baseUrl}${src}`);
+          if (src && src.startsWith("http")) {
+            pages.push(src);
           }
         });
         if (pages.length === 0) {
