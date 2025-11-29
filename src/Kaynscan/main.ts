@@ -77,7 +77,8 @@ export class KaynscanExtension implements KaynscanImplementation {
 
   checkCloudflareStatus(status: number): void {
     if (status == 503 || status == 403) {
-      throw new CloudflareError({ url: baseUrl, method: "GET" });
+      // Explicitly use https:// URL for CloudflareError
+      throw new CloudflareError({ url: "https://kaynscan.com", method: "GET" });
     }
   }
 

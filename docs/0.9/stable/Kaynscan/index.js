@@ -16971,7 +16971,7 @@ var source = (() => {
     }
     checkCloudflareStatus(status) {
       if (status == 503 || status == 403) {
-        throw new import_types3.CloudflareError({ url: baseUrl, method: "GET" });
+        throw new import_types3.CloudflareError({ url: "https://kaynscan.com", method: "GET" });
       }
     }
     async getDiscoverSections() {
