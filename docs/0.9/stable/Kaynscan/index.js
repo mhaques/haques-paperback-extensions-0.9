@@ -16920,6 +16920,9 @@ var source = (() => {
   var import_types2 = __toESM(require_lib(), 1);
   var KaynscanInterceptor = class extends import_types2.PaperbackInterceptor {
     async interceptRequest(request) {
+      if (request.url.startsWith("http://")) {
+        request.url = request.url.replace("http://", "https://");
+      }
       request.headers = {
         ...request.headers,
         referer: `https://kaynscan.com/`,
