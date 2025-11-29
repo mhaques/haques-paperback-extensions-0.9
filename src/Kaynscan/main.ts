@@ -118,11 +118,12 @@ export class KaynscanExtension implements KaynscanImplementation {
       const title = link.attr("title") || link.attr("alt") || "";
       
       // Extract manga ID from URL like /series/640e17f407b/
-      const mangaIdMatch = href.match(/\/series\/([^\/]+)/);
+      const mangaIdMatch = href.match(/\/series\/([^\/\?]+)/);
       const mangaId = mangaIdMatch ? mangaIdMatch[1] : "";
       
-      // Skip if no manga ID or if it's just "series" (the browse page link)
+      // Skip invalid IDs: must be alphanumeric (with some symbols), no spaces, no query params
       if (!mangaId || mangaId === "" || !title) return;
+      if (mangaId.includes("?") || mangaId.includes(" ") || mangaId.length < 3) return;
       if (collectedIds.includes(mangaId)) return;
       
       // Get image from background-image style
@@ -182,11 +183,12 @@ export class KaynscanExtension implements KaynscanImplementation {
       const href = link.attr("href") || "";
       const title = link.attr("title") || link.attr("alt") || "";
       
-      const mangaIdMatch = href.match(/\/series\/([^\/]+)/);
+      const mangaIdMatch = href.match(/\/series\/([^\/\?]+)/);
       const mangaId = mangaIdMatch ? mangaIdMatch[1] : "";
       
-      // Skip if no manga ID or if it's just "series" (the browse page link)
+      // Skip invalid IDs: must be alphanumeric (with some symbols), no spaces, no query params
       if (!mangaId || mangaId === "" || !title) return;
+      if (mangaId.includes("?") || mangaId.includes(" ") || mangaId.length < 3) return;
       
       const imageDiv = link.find("div[style*='background-image']").first();
       const styleAttr = imageDiv.attr("style") || "";
