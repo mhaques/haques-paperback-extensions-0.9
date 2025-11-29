@@ -445,15 +445,23 @@ export class MangabuddyExtension implements BuddyImplementation {
       
       if (!chapterUrl) return;
 
-      // Extract chapter number from URL
-      const chapterMatch = chapterUrl.match(/\/chapter-(\d+(?:\.\d+)?)/i);
+      // Extract the full chapter path from URL (everything after the manga ID)
+      // Examples: 
+      // /shark/chapter-79-running-away -> chapter-79-running-away
+      // /shark/vol-1-chapter-63 -> vol-1-chapter-63
+      // /shark/chapter-62 -> chapter-62
+      const pathMatch = chapterUrl.match(/^\/[^\/]+\/(.+)$/);
+      if (!pathMatch) return;
       
-      if (!chapterMatch) return; // Skip if we can't find chapter number in URL
+      const chapterId = pathMatch[1]; // Full chapter path
+
+      // Extract chapter number for sorting
+      // Try multiple patterns: vol-X-chapter-Y, chapter-X-name, chapter-X
+      const numberMatch = chapterUrl.match(/(?:vol-\d+-)?chapter-(\d+(?:\.\d+)?)/i);
+      if (!numberMatch) return;
       
-      const chapterId = chapterMatch[1];
-      const chapterNumber = Number(chapterId);
-      
-      if (isNaN(chapterNumber)) return; // Skip if chapter number is invalid
+      const chapterNumber = Number(numberMatch[1]);
+      if (isNaN(chapterNumber)) return;
 
       const chapterTitle = link.find(".chapter-title").text().trim();
       const dateText = link.find("time.chapter-update").text().trim();
@@ -475,7 +483,7 @@ export class MangabuddyExtension implements BuddyImplementation {
   }
 
   async getChapterDetails(chapter: Chapter): Promise<ChapterDetails> {
-    const chapterUrl = `${baseUrl}/${chapter.sourceManga.mangaId}/chapter-${chapter.chapterId}`;
+    const chapterUrl = `${baseUrl}/${chapter.sourceManga.mangaId}/${chapter.chapterId}`;
 
     try {
       const request: Request = { url: chapterUrl, method: "GET" };

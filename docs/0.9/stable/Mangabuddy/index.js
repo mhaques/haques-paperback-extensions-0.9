@@ -17305,10 +17305,12 @@ var source = (() => {
         const link = li.find("a");
         const chapterUrl = link.attr("href") || "";
         if (!chapterUrl) return;
-        const chapterMatch = chapterUrl.match(/\/chapter-(\d+(?:\.\d+)?)/i);
-        if (!chapterMatch) return;
-        const chapterId = chapterMatch[1];
-        const chapterNumber = Number(chapterId);
+        const pathMatch = chapterUrl.match(/^\/[^\/]+\/(.+)$/);
+        if (!pathMatch) return;
+        const chapterId = pathMatch[1];
+        const numberMatch = chapterUrl.match(/(?:vol-\d+-)?chapter-(\d+(?:\.\d+)?)/i);
+        if (!numberMatch) return;
+        const chapterNumber = Number(numberMatch[1]);
         if (isNaN(chapterNumber)) return;
         const chapterTitle = link.find(".chapter-title").text().trim();
         const dateText = link.find("time.chapter-update").text().trim();
@@ -17325,7 +17327,7 @@ var source = (() => {
       return chapters.sort((a, b) => b.chapNum - a.chapNum);
     }
     async getChapterDetails(chapter) {
-      const chapterUrl = `${baseUrl}/${chapter.sourceManga.mangaId}/chapter-${chapter.chapterId}`;
+      const chapterUrl = `${baseUrl}/${chapter.sourceManga.mangaId}/${chapter.chapterId}`;
       try {
         const request = { url: chapterUrl, method: "GET" };
         const $2 = await this.fetchCheerio(request);
