@@ -360,21 +360,42 @@ export class KaynscanExtension implements KaynscanImplementation {
 
       const pages: string[] = [];
 
-      // Kaynscan images: <img src="https://cdn.meowing.org/..." class="lazy w-full myImage">
+      // Kaynscan images: <img src="https://cdn.meowing.org/uploads/..." uid="..." class="myImage">
+      // Try multiple approaches to get images
       $("img.myImage").each((_, element) => {
-        const src = $(element).attr("src") || "";
-        if (src) {
-          // Ensure HTTPS and add to pages
-          pages.push(ensureHttps(src));
+        const img = $(element);
+        let imageUrl = "";
+        
+        // First try src attribute
+        const src = img.attr("src") || "";
+        if (src && src.includes("cdn.meowing.org")) {
+          imageUrl = src;
+        }
+        
+        // If no valid src, build URL from uid attribute
+        if (!imageUrl) {
+          const uid = img.attr("uid") || "";
+          if (uid) {
+            imageUrl = `https://cdn.meowing.org/uploads/${uid}`;
+          }
+        }
+        
+        if (imageUrl) {
+          pages.push(ensureHttps(imageUrl));
         }
       });
 
       // If no images found with myImage class, try other selectors
       if (pages.length === 0) {
-        $("img[src*='cdn.meowing'], img[src*='cdn.kaynscan']").each((_, element) => {
-          const src = $(element).attr("src") || $(element).attr("data-src") || "";
-          if (src && src.startsWith("http")) {
+        $("img[src*='cdn.meowing'], img[uid]").each((_, element) => {
+          const img = $(element);
+          const src = img.attr("src") || "";
+          const uid = img.attr("uid") || "";
+          
+          if (src && src.includes("cdn.meowing.org")) {
             pages.push(ensureHttps(src));
+          } else if (uid) {
+            pages.push(ensureHttps(`https://cdn.meowing.org/uploads/${uid}`));
           }
         });
       }

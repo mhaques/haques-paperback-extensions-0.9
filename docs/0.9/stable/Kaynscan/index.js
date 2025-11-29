@@ -17187,16 +17187,31 @@ var source = (() => {
         const $2 = await this.fetchCheerio(request);
         const pages = [];
         $2("img.myImage").each((_, element) => {
-          const src = $2(element).attr("src") || "";
-          if (src) {
-            pages.push(ensureHttps(src));
+          const img = $2(element);
+          let imageUrl = "";
+          const src = img.attr("src") || "";
+          if (src && src.includes("cdn.meowing.org")) {
+            imageUrl = src;
+          }
+          if (!imageUrl) {
+            const uid = img.attr("uid") || "";
+            if (uid) {
+              imageUrl = `https://cdn.meowing.org/uploads/${uid}`;
+            }
+          }
+          if (imageUrl) {
+            pages.push(ensureHttps(imageUrl));
           }
         });
         if (pages.length === 0) {
-          $2("img[src*='cdn.meowing'], img[src*='cdn.kaynscan']").each((_, element) => {
-            const src = $2(element).attr("src") || $2(element).attr("data-src") || "";
-            if (src && src.startsWith("http")) {
+          $2("img[src*='cdn.meowing'], img[uid]").each((_, element) => {
+            const img = $2(element);
+            const src = img.attr("src") || "";
+            const uid = img.attr("uid") || "";
+            if (src && src.includes("cdn.meowing.org")) {
               pages.push(ensureHttps(src));
+            } else if (uid) {
+              pages.push(ensureHttps(`https://cdn.meowing.org/uploads/${uid}`));
             }
           });
         }
