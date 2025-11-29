@@ -12,6 +12,7 @@ export class KaynscanInterceptor extends PaperbackInterceptor {
       referer: `https://kaynscan.com/`,
       "user-agent": await Application.getDefaultUserAgent(),
     };
+    
     return request;
   }
 
@@ -20,6 +21,21 @@ export class KaynscanInterceptor extends PaperbackInterceptor {
     response: Response,
     data: ArrayBuffer,
   ): Promise<ArrayBuffer> {
+    // Check for redirects and force them to HTTPS
+    if (response.status >= 300 && response.status < 400) {
+      const location = response.headers?.["location"] || response.headers?.["Location"];
+      if (location && location.startsWith("http://")) {
+        // Manually follow redirect with HTTPS
+        const httpsLocation = location.replace("http://", "https://");
+        const redirectRequest: Request = {
+          url: httpsLocation,
+          method: "GET",
+          headers: request.headers,
+        };
+        const [newResponse, newData] = await Application.scheduleRequest(redirectRequest);
+        return newData;
+      }
+    }
     return data;
   }
 }

@@ -16931,6 +16931,19 @@ var source = (() => {
       return request;
     }
     async interceptResponse(request, response, data2) {
+      if (response.status >= 300 && response.status < 400) {
+        const location = response.headers?.["location"] || response.headers?.["Location"];
+        if (location && location.startsWith("http://")) {
+          const httpsLocation = location.replace("http://", "https://");
+          const redirectRequest = {
+            url: httpsLocation,
+            method: "GET",
+            headers: request.headers
+          };
+          const [newResponse, newData] = await Application.scheduleRequest(redirectRequest);
+          return newData;
+        }
+      }
       return data2;
     }
   };
