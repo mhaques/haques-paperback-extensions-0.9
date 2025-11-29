@@ -5,6 +5,7 @@ A custom fork of the Kakarot Extension repository for Paperback
 ## 📚 Available Sources
 
 - MangaBuddy
+- Kaynscan
 
 ## 🚀 Installation
 
