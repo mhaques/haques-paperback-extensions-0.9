@@ -232,24 +232,35 @@ export class KaynscanExtension implements KaynscanImplementation {
 
     const $ = await this.fetchCheerio(request);
 
-    const title = $("h1, .title, .series-title").first().text().trim();
-    const image = $(".cover img, .thumbnail img").attr("src") || 
-                  $(".cover img, .thumbnail img").attr("data-src") || "";
-    const description = $(".summary, .description, .synopsis").text().trim();
+    const title = $("h1").first().text().trim();
+    
+    // Cover image is in style attribute with --photoURL CSS variable
+    const coverDiv = $(".bg-\\[image\\:--photoURL\\]").first();
+    const styleAttr = coverDiv.attr("style") || "";
+    const imageMatch = styleAttr.match(/--photoURL:url\(([^)]+)\)/);
+    const image = imageMatch ? imageMatch[1] : "";
+    
+    // Description is in a <p> tag with white-space: pre-wrap
+    const description = $("p[style*='white-space']").text().trim();
     
     let status = "UNKNOWN";
-    const statusText = $(".status").text().toLowerCase();
-    if (statusText.includes("ongoing")) {
-      status = "ONGOING";
-    } else if (statusText.includes("completed")) {
-      status = "COMPLETED";
+    // Status is in a div with bg-green-500/80 for ongoing
+    const statusDiv = $(".bg-green-500\\/80");
+    if (statusDiv.length > 0) {
+      const statusText = statusDiv.find("span").text().toLowerCase();
+      if (statusText.includes("ongoing")) {
+        status = "ONGOING";
+      } else if (statusText.includes("completed")) {
+        status = "COMPLETED";
+      }
     }
 
     const tags: TagSection[] = [];
     const genres: string[] = [];
     
-    $(".genre, .genres a, .tag").each((_, element) => {
-      const genre = $(element).text().trim();
+    // Genres are in <a> tags with href containing "?genre="
+    $("a[href*='?genre=']").each((_, element) => {
+      const genre = $(element).find("span").last().text().trim();
       if (genre) genres.push(genre);
     });
 
@@ -300,18 +311,14 @@ export class KaynscanExtension implements KaynscanImplementation {
       
       const chapterId = chapterIdMatch[1];
       
-      // Get chapter number from 'c' attribute or title
-      const chapterNumAttr = link.attr("c");
+      // Get chapter number from 'c' attribute or title - note: 'c' is actually the order, not chapter number
       const titleText = link.attr("title") || link.find(".text-sm").text().trim();
       
       let chapterNumber = 0;
-      if (chapterNumAttr) {
-        chapterNumber = Number(chapterNumAttr);
-      } else {
-        const numMatch = titleText.match(/(?:Chapter|Ch\.?)\s*(\d+(?:\.\d+)?)/i);
-        if (numMatch) {
-          chapterNumber = Number(numMatch[1]);
-        }
+      // Extract chapter number from title like "Chapter 145"
+      const numMatch = titleText.match(/Chapter\s+(\d+(?:\.\d+)?)/i);
+      if (numMatch) {
+        chapterNumber = Number(numMatch[1]);
       }
       
       if (isNaN(chapterNumber) || chapterNumber === 0) return;

@@ -17097,20 +17097,26 @@ var source = (() => {
         method: "GET"
       };
       const $2 = await this.fetchCheerio(request);
-      const title = $2("h1, .title, .series-title").first().text().trim();
-      const image = $2(".cover img, .thumbnail img").attr("src") || $2(".cover img, .thumbnail img").attr("data-src") || "";
-      const description = $2(".summary, .description, .synopsis").text().trim();
+      const title = $2("h1").first().text().trim();
+      const coverDiv = $2(".bg-\\[image\\:--photoURL\\]").first();
+      const styleAttr = coverDiv.attr("style") || "";
+      const imageMatch = styleAttr.match(/--photoURL:url\(([^)]+)\)/);
+      const image = imageMatch ? imageMatch[1] : "";
+      const description = $2("p[style*='white-space']").text().trim();
       let status = "UNKNOWN";
-      const statusText = $2(".status").text().toLowerCase();
-      if (statusText.includes("ongoing")) {
-        status = "ONGOING";
-      } else if (statusText.includes("completed")) {
-        status = "COMPLETED";
+      const statusDiv = $2(".bg-green-500\\/80");
+      if (statusDiv.length > 0) {
+        const statusText = statusDiv.find("span").text().toLowerCase();
+        if (statusText.includes("ongoing")) {
+          status = "ONGOING";
+        } else if (statusText.includes("completed")) {
+          status = "COMPLETED";
+        }
       }
       const tags = [];
       const genres = [];
-      $2(".genre, .genres a, .tag").each((_, element) => {
-        const genre = $2(element).text().trim();
+      $2("a[href*='?genre=']").each((_, element) => {
+        const genre = $2(element).find("span").last().text().trim();
         if (genre) genres.push(genre);
       });
       if (genres.length > 0) {
@@ -17150,16 +17156,11 @@ var source = (() => {
         const chapterIdMatch = chapterUrl.match(/\/chapter\/([^\/]+)/);
         if (!chapterIdMatch) return;
         const chapterId = chapterIdMatch[1];
-        const chapterNumAttr = link.attr("c");
         const titleText = link.attr("title") || link.find(".text-sm").text().trim();
         let chapterNumber = 0;
-        if (chapterNumAttr) {
-          chapterNumber = Number(chapterNumAttr);
-        } else {
-          const numMatch = titleText.match(/(?:Chapter|Ch\.?)\s*(\d+(?:\.\d+)?)/i);
-          if (numMatch) {
-            chapterNumber = Number(numMatch[1]);
-          }
+        const numMatch = titleText.match(/Chapter\s+(\d+(?:\.\d+)?)/i);
+        if (numMatch) {
+          chapterNumber = Number(numMatch[1]);
         }
         if (isNaN(chapterNumber) || chapterNumber === 0) return;
         const chapterTitle = titleText || `Chapter ${chapterNumber}`;
