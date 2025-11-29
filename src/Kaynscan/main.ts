@@ -240,8 +240,8 @@ export class KaynscanExtension implements KaynscanImplementation {
     const imageMatch = styleAttr.match(/--photoURL:url\(([^)]+)\)/);
     const image = imageMatch ? imageMatch[1] : "";
     
-    // Description is in a <p> tag with white-space: pre-wrap
-    const description = $("p[style*='white-space']").text().trim();
+    // Description is in a <p> tag with style="white-space: pre-wrap"
+    const description = $("p[style*='white-space']").first().text().trim();
     
     let status = "UNKNOWN";
     // Status is in a div with bg-green-500/80 for ongoing
@@ -258,9 +258,9 @@ export class KaynscanExtension implements KaynscanImplementation {
     const tags: TagSection[] = [];
     const genres: string[] = [];
     
-    // Genres are in <a> tags with href containing "?genre="
+    // Genres are in <a href="/series/?genre=X"> tags with <span> inside
     $("a[href*='?genre=']").each((_, element) => {
-      const genre = $(element).find("span").last().text().trim();
+      const genre = $(element).find("span").first().text().trim();
       if (genre) genres.push(genre);
     });
 
@@ -334,15 +334,51 @@ export class KaynscanExtension implements KaynscanImplementation {
       if (isNaN(chapterNumber) || chapterNumber === 0) return;
 
       const chapterTitle = titleText || `Chapter ${chapterNumber}`;
-      const dateText = link.find(".text-xs.text-white\\/50").text().trim() || 
-                       link.attr("d") || "";
+      
+      // Date is in a div with class "text-xs text-white/50" inside the chapter link
+      const dateText = link.find(".text-xs.text-white\\/50").first().text().trim();
+      
+      // Parse relative time like "9 hours ago", "1 day ago", etc.
+      let publishDate: Date | undefined = undefined;
+      if (dateText) {
+        const now = new Date();
+        const timeMatch = dateText.match(/(\d+)\s+(second|minute|hour|day|week|month|year)s?\s+ago/i);
+        if (timeMatch) {
+          const value = parseInt(timeMatch[1]);
+          const unit = timeMatch[2].toLowerCase();
+          
+          switch (unit) {
+            case "second":
+              publishDate = new Date(now.getTime() - value * 1000);
+              break;
+            case "minute":
+              publishDate = new Date(now.getTime() - value * 60 * 1000);
+              break;
+            case "hour":
+              publishDate = new Date(now.getTime() - value * 60 * 60 * 1000);
+              break;
+            case "day":
+              publishDate = new Date(now.getTime() - value * 24 * 60 * 60 * 1000);
+              break;
+            case "week":
+              publishDate = new Date(now.getTime() - value * 7 * 24 * 60 * 60 * 1000);
+              break;
+            case "month":
+              publishDate = new Date(now.getTime() - value * 30 * 24 * 60 * 60 * 1000);
+              break;
+            case "year":
+              publishDate = new Date(now.getTime() - value * 365 * 24 * 60 * 60 * 1000);
+              break;
+          }
+        }
+      }
 
       chapters.push({
         chapterId: chapterId,
         title: chapterTitle,
         sourceManga,
         chapNum: chapterNumber,
-        publishDate: dateText ? new Date(dateText) : undefined,
+        publishDate: publishDate,
         langCode: "🇬🇧",
       });
     });

@@ -17102,7 +17102,7 @@ var source = (() => {
       const styleAttr = coverDiv.attr("style") || "";
       const imageMatch = styleAttr.match(/--photoURL:url\(([^)]+)\)/);
       const image = imageMatch ? imageMatch[1] : "";
-      const description = $2("p[style*='white-space']").text().trim();
+      const description = $2("p[style*='white-space']").first().text().trim();
       let status = "UNKNOWN";
       const statusDiv = $2(".bg-green-500\\/80");
       if (statusDiv.length > 0) {
@@ -17116,7 +17116,7 @@ var source = (() => {
       const tags = [];
       const genres = [];
       $2("a[href*='?genre=']").each((_, element) => {
-        const genre = $2(element).find("span").last().text().trim();
+        const genre = $2(element).find("span").first().text().trim();
         if (genre) genres.push(genre);
       });
       if (genres.length > 0) {
@@ -17168,13 +17168,45 @@ var source = (() => {
         }
         if (isNaN(chapterNumber) || chapterNumber === 0) return;
         const chapterTitle = titleText || `Chapter ${chapterNumber}`;
-        const dateText = link.find(".text-xs.text-white\\/50").text().trim() || link.attr("d") || "";
+        const dateText = link.find(".text-xs.text-white\\/50").first().text().trim();
+        let publishDate = void 0;
+        if (dateText) {
+          const now = /* @__PURE__ */ new Date();
+          const timeMatch = dateText.match(/(\d+)\s+(second|minute|hour|day|week|month|year)s?\s+ago/i);
+          if (timeMatch) {
+            const value = parseInt(timeMatch[1]);
+            const unit = timeMatch[2].toLowerCase();
+            switch (unit) {
+              case "second":
+                publishDate = new Date(now.getTime() - value * 1e3);
+                break;
+              case "minute":
+                publishDate = new Date(now.getTime() - value * 60 * 1e3);
+                break;
+              case "hour":
+                publishDate = new Date(now.getTime() - value * 60 * 60 * 1e3);
+                break;
+              case "day":
+                publishDate = new Date(now.getTime() - value * 24 * 60 * 60 * 1e3);
+                break;
+              case "week":
+                publishDate = new Date(now.getTime() - value * 7 * 24 * 60 * 60 * 1e3);
+                break;
+              case "month":
+                publishDate = new Date(now.getTime() - value * 30 * 24 * 60 * 60 * 1e3);
+                break;
+              case "year":
+                publishDate = new Date(now.getTime() - value * 365 * 24 * 60 * 60 * 1e3);
+                break;
+            }
+          }
+        }
         chapters.push({
           chapterId,
           title: chapterTitle,
           sourceManga,
           chapNum: chapterNumber,
-          publishDate: dateText ? new Date(dateText) : void 0,
+          publishDate,
           langCode: "\u{1F1EC}\u{1F1E7}"
         });
       });
