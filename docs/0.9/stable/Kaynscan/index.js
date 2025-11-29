@@ -2209,7 +2209,7 @@ var source = (() => {
       init_buffer();
       Object.defineProperty(exports, "__esModule", { value: true });
       exports.CloudflareError = void 0;
-      var CloudflareError2 = class extends Error {
+      var CloudflareError = class extends Error {
         resolutionRequest;
         type = "cloudflareError";
         constructor(resolutionRequest, message = "Cloudflare bypass is required") {
@@ -2217,7 +2217,7 @@ var source = (() => {
           this.resolutionRequest = resolutionRequest;
         }
       };
-      exports.CloudflareError = CloudflareError2;
+      exports.CloudflareError = CloudflareError;
     }
   });
 
@@ -2521,7 +2521,7 @@ var source = (() => {
       var PaperbackInterceptor_1 = require_PaperbackInterceptor();
       var URL_1 = require_URL();
       var cookieStateKey = "cookie_store_cookies";
-      var CookieStorageInterceptor2 = class extends PaperbackInterceptor_1.PaperbackInterceptor {
+      var CookieStorageInterceptor = class extends PaperbackInterceptor_1.PaperbackInterceptor {
         options;
         _cookies = {};
         get cookies() {
@@ -2678,7 +2678,7 @@ var source = (() => {
           Application.setState(this.cookies.filter((x) => x.expires), cookieStateKey);
         }
       };
-      exports.CookieStorageInterceptor = CookieStorageInterceptor2;
+      exports.CookieStorageInterceptor = CookieStorageInterceptor;
     }
   });
 
@@ -16941,9 +16941,6 @@ var source = (() => {
       bufferInterval: 1,
       ignoreImages: true
     });
-    cookieStorageInterceptor = new import_types3.CookieStorageInterceptor({
-      storage: "stateManager"
-    });
     async initialise() {
       this.requestManager.registerInterceptor();
       this.globalRateLimiter.registerInterceptor();
@@ -17153,25 +17150,8 @@ var source = (() => {
     getMangaShareUrl(mangaId) {
       return `${baseUrl}/series/${mangaId}`;
     }
-    async saveCloudflareBypassCookies(cookies) {
-      for (const cookie of this.cookieStorageInterceptor.cookies) {
-        this.cookieStorageInterceptor.deleteCookie(cookie);
-      }
-      for (const cookie of cookies) {
-        if (cookie.expires && cookie.expires.getTime() <= Date.now()) {
-          continue;
-        }
-        this.cookieStorageInterceptor.setCookie(cookie);
-      }
-    }
-    checkCloudflareStatus(status) {
-      if (status == 503 || status == 403) {
-        throw new import_types3.CloudflareError({ url: baseUrl, method: "GET" });
-      }
-    }
     async fetchCheerio(request) {
       const [response, data2] = await Application.scheduleRequest(request);
-      this.checkCloudflareStatus(response.status);
       const htmlStr = Application.arrayBufferToUTF8String(data2);
       const dom = parseDocument(htmlStr);
       return load(dom);

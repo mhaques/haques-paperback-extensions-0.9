@@ -3,11 +3,7 @@ import {
   Chapter,
   ChapterDetails,
   ChapterProviding,
-  CloudflareBypassRequestProviding,
-  CloudflareError,
   ContentRating,
-  Cookie,
-  CookieStorageInterceptor,
   DiscoverSection,
   DiscoverSectionItem,
   DiscoverSectionProviding,
@@ -35,7 +31,6 @@ type KaynscanImplementation = Extension &
   SearchResultsProviding &
   MangaProviding &
   ChapterProviding &
-  CloudflareBypassRequestProviding &
   DiscoverSectionProviding;
 
 export class KaynscanExtension implements KaynscanImplementation {
@@ -44,9 +39,6 @@ export class KaynscanExtension implements KaynscanImplementation {
     numberOfRequests: 5,
     bufferInterval: 1,
     ignoreImages: true,
-  });
-  cookieStorageInterceptor = new CookieStorageInterceptor({
-    storage: "stateManager",
   });
 
   async initialise(): Promise<void> {
@@ -313,27 +305,8 @@ export class KaynscanExtension implements KaynscanImplementation {
     return `${baseUrl}/series/${mangaId}`;
   }
 
-  async saveCloudflareBypassCookies(cookies: Cookie[]): Promise<void> {
-    for (const cookie of this.cookieStorageInterceptor.cookies) {
-      this.cookieStorageInterceptor.deleteCookie(cookie);
-    }
-    for (const cookie of cookies) {
-      if (cookie.expires && cookie.expires.getTime() <= Date.now()) {
-        continue;
-      }
-      this.cookieStorageInterceptor.setCookie(cookie);
-    }
-  }
-
-  checkCloudflareStatus(status: number): void {
-    if (status == 503 || status == 403) {
-      throw new CloudflareError({ url: baseUrl, method: "GET" });
-    }
-  }
-
   async fetchCheerio(request: Request): Promise<CheerioAPI> {
     const [response, data] = await Application.scheduleRequest(request);
-    this.checkCloudflareStatus(response.status);
     const htmlStr = Application.arrayBufferToUTF8String(data);
     const dom = htmlparser2.parseDocument(htmlStr);
     return cheerio.load(dom);
