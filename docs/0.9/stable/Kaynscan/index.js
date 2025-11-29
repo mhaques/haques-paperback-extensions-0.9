@@ -2521,7 +2521,7 @@ var source = (() => {
       var PaperbackInterceptor_1 = require_PaperbackInterceptor();
       var URL_1 = require_URL();
       var cookieStateKey = "cookie_store_cookies";
-      var CookieStorageInterceptor = class extends PaperbackInterceptor_1.PaperbackInterceptor {
+      var CookieStorageInterceptor2 = class extends PaperbackInterceptor_1.PaperbackInterceptor {
         options;
         _cookies = {};
         get cookies() {
@@ -2678,7 +2678,7 @@ var source = (() => {
           Application.setState(this.cookies.filter((x) => x.expires), cookieStateKey);
         }
       };
-      exports.CookieStorageInterceptor = CookieStorageInterceptor;
+      exports.CookieStorageInterceptor = CookieStorageInterceptor2;
     }
   });
 
@@ -16941,9 +16941,24 @@ var source = (() => {
       bufferInterval: 1,
       ignoreImages: true
     });
+    cookieStorageInterceptor = new import_types3.CookieStorageInterceptor({
+      storage: "stateManager"
+    });
     async initialise() {
       this.requestManager.registerInterceptor();
       this.globalRateLimiter.registerInterceptor();
+      this.cookieStorageInterceptor.registerInterceptor();
+    }
+    async saveCloudflareBypassCookies(cookies) {
+      for (const cookie of this.cookieStorageInterceptor.cookies) {
+        this.cookieStorageInterceptor.deleteCookie(cookie);
+      }
+      for (const cookie of cookies) {
+        if (cookie.expires && cookie.expires.getTime() <= Date.now()) {
+          continue;
+        }
+        this.cookieStorageInterceptor.setCookie(cookie);
+      }
     }
     async getDiscoverSections() {
       return [

@@ -3,7 +3,10 @@ import {
   Chapter,
   ChapterDetails,
   ChapterProviding,
+  CloudflareBypassRequestProviding,
   ContentRating,
+  Cookie,
+  CookieStorageInterceptor,
   DiscoverSection,
   DiscoverSectionItem,
   DiscoverSectionProviding,
@@ -31,7 +34,8 @@ type KaynscanImplementation = Extension &
   SearchResultsProviding &
   MangaProviding &
   ChapterProviding &
-  DiscoverSectionProviding;
+  DiscoverSectionProviding &
+  CloudflareBypassRequestProviding;
 
 export class KaynscanExtension implements KaynscanImplementation {
   requestManager = new KaynscanInterceptor("main");
@@ -40,10 +44,26 @@ export class KaynscanExtension implements KaynscanImplementation {
     bufferInterval: 1,
     ignoreImages: true,
   });
+  cookieStorageInterceptor = new CookieStorageInterceptor({
+    storage: "stateManager",
+  });
 
   async initialise(): Promise<void> {
     this.requestManager.registerInterceptor();
     this.globalRateLimiter.registerInterceptor();
+    this.cookieStorageInterceptor.registerInterceptor();
+  }
+
+  async saveCloudflareBypassCookies(cookies: Cookie[]): Promise<void> {
+    for (const cookie of this.cookieStorageInterceptor.cookies) {
+      this.cookieStorageInterceptor.deleteCookie(cookie);
+    }
+    for (const cookie of cookies) {
+      if (cookie.expires && cookie.expires.getTime() <= Date.now()) {
+        continue;
+      }
+      this.cookieStorageInterceptor.setCookie(cookie);
+    }
   }
 
   async getDiscoverSections(): Promise<DiscoverSection[]> {
