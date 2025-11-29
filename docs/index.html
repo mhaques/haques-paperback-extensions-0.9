@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Haques Paperback Extensions</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .sources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .source-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .source-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .source-item h3 {
+            color: #333;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .install-section {
+            background: #f0f4ff;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .install-url {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #667eea;
+            margin: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .install-url code {
+            flex: 1;
+            font-family: 'Courier New', monospace;
+            color: #667eea;
+            font-size: 1.1em;
+            word-break: break-all;
+        }
+
+        .copy-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: #764ba2;
+        }
+
+        .copy-btn:active {
+            transform: scale(0.95);
+        }
+
+        ol {
+            margin-left: 20px;
+            margin-top: 15px;
+        }
+
+        ol li {
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            background: #667eea;
+            color: white;
+            border-radius: 5px;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+
+        footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9em;
+        }
+
+        footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        .success-message {
+            background: #4caf50;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 Haques Paperback Extensions</h1>
+            <p>Custom manga and comic extensions for Paperback</p>
+        </header>
+
+        <div class="content">
+            <div class="install-section">
+                <h2>🚀 Installation</h2>
+                <ol>
+                    <li>Open <strong>Paperback</strong> app on your device</li>
+                    <li>Go to <strong>Settings</strong> → <strong>External Sources</strong></li>
+                    <li>Tap <strong>Add Repository</strong></li>
+                    <li>Copy and paste the URL below:</li>
+                </ol>
+                
+                <div class="install-url">
+                    <code id="repoUrl">https://mhaques.github.io/haques-paperback-extensions-0.9/0.9/stable/</code>
+                    <button class="copy-btn" onclick="copyUrl()">Copy URL</button>
+                </div>
+                <div class="success-message" id="successMessage">✓ Copied to clipboard!</div>
+                
+                <ol start="5">
+                    <li>Tap <strong>Add</strong> to add the repository</li>
+                    <li>Install your desired extensions from the list</li>
+                    <li>Start reading! 🎉</li>
+                </ol>
+            </div>
+
+            <div class="section">
+                <h2>📖 Available Sources</h2>
+                <div class="sources-grid">
+                    <div class="source-item">
+                        <h3>Atsumaru</h3>
+                        <span class="badge">Manga</span>
+                    </div>
+                    <div class="source-item">
+                        <h3>Batcave</h3>
+                        <span class="badge">Comics</span>
+                    </div>
+                    <div class="source-item">
+                        <h3>Elftoon</h3>
+                        <span class="badge">Manga</span>
+                    </div>
+                    <div class="source-item">
+                        <h3>Hentai2Read</h3>
+                        <span class="badge">Adult</span>
+                    </div>
+                    <div class="source-item">
+                        <h3>MangaBall</h3>
+                        <span class="badge">Manga</span>
+                    </div>
+                    <div class="source-item">
+                        <h3>MangaBuddy</h3>
+                        <span class="badge">Manga</span>
+                    </div>
+                    <div class="source-item">
+                        <h3>MangaFire</h3>
+                        <span class="badge">Manga</span>
+                    </div>
+                    <div class="source-item">
+                        <h3>MangaPark</h3>
+                        <span class="badge">Manga</span>
+                    </div>
+                    <div class="source-item">
+                        <h3>MangaTaro</h3>
+                        <span class="badge">Manga</span>
+                    </div>
+                    <div class="source-item">
+                        <h3>NHentai</h3>
+                        <span class="badge">Adult</span>
+                    </div>
+                    <div class="source-item">
+                        <h3>NovelFire</h3>
+                        <span class="badge">Novels</span>
+                    </div>
+                    <div class="source-item">
+                        <h3>ReadAllComics</h3>
+                        <span class="badge">Comics</span>
+                    </div>
+                    <div class="source-item">
+                        <h3>ReadComicsOnline</h3>
+                        <span class="badge">Comics</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>ℹ️ About</h2>
+                <p>This is a custom fork of the Kakarot Extension repository, maintained by Haques. It includes various manga and comic sources for the Paperback reader app.</p>
+                <p style="margin-top: 15px;"><strong>Note:</strong> These extensions are not affiliated with the original source websites.</p>
+            </div>
+
+            <div class="section">
+                <h2>⚠️ Requirements</h2>
+                <ul style="list-style: none; padding-left: 0;">
+                    <li>✓ Paperback 0.9.x or higher</li>
+                    <li>✓ iOS 15.0 or higher</li>
+                    <li>✓ Active internet connection</li>
+                </ul>
+            </div>
+        </div>
+
+        <footer>
+            <p>Based on <a href="https://github.com/karrot0/KakarotExtension" target="_blank">Kakarot Extension</a></p>
+            <p style="margin-top: 10px;">
+                <a href="https://github.com/mhaques/haques-paperback-extensions-0.9" target="_blank">View on GitHub</a>
+            </p>
+            <p style="margin-top: 10px; opacity: 0.7;">MIT License © 2024</p>
+        </footer>
+    </div>
+
+    <script>
+        function copyUrl() {
+            const url = document.getElementById('repoUrl').textContent;
+            navigator.clipboard.writeText(url).then(() => {
+                const message = document.getElementById('successMessage');
+                message.style.display = 'block';
+                setTimeout(() => {
+                    message.style.display = 'none';
+                }, 3000);
+            });
+        }
+    </script>
+</body>
+</html>
