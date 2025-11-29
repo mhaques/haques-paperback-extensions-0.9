@@ -234,14 +234,56 @@ export class KaynscanExtension implements KaynscanImplementation {
 
     const title = $("h1").first().text().trim();
     
-    // Cover image is in style attribute with --photoURL CSS variable
+    // Cover image - try multiple methods
+    let image = "";
+    
+    // Method 1: CSS variable in style attribute with --photoURL
     const coverDiv = $(".bg-\\[image\\:--photoURL\\]").first();
     const styleAttr = coverDiv.attr("style") || "";
     const imageMatch = styleAttr.match(/--photoURL:url\(([^)]+)\)/);
-    const image = imageMatch ? imageMatch[1] : "";
+    if (imageMatch) {
+      image = imageMatch[1];
+    }
     
-    // Description is in a <p> tag with style="white-space: pre-wrap"
-    const description = $("p[style*='white-space']").first().text().trim();
+    // Method 2: Look for any div with background-image in style
+    if (!image) {
+      $("div[style*='background-image']").each((_, element) => {
+        const style = $(element).attr("style") || "";
+        const bgMatch = style.match(/background-image:\s*url\(([^)]+)\)/);
+        if (bgMatch) {
+          image = bgMatch[1].replace(/['"]/g, "");
+          return false; // break
+        }
+      });
+    }
+    
+    // Method 3: Look for img tag in the header/top area
+    if (!image) {
+      const imgSrc = $("img[src*='cdn.meowing'], img[src*='wsrv.nl']").first().attr("src");
+      if (imgSrc) image = imgSrc;
+    }
+    
+    // Description - try multiple methods
+    let description = "";
+    
+    // Method 1: p tag with white-space style
+    description = $("p[style*='white-space']").first().text().trim();
+    
+    // Method 2: Look for p tag with pre-wrap class or in a specific container
+    if (!description) {
+      description = $("p.pre-wrap, div.description p, .synopsis p").first().text().trim();
+    }
+    
+    // Method 3: Any p tag that looks like a description (longer text)
+    if (!description) {
+      $("p").each((_, element) => {
+        const text = $(element).text().trim();
+        if (text.length > 50) {
+          description = text;
+          return false; // break
+        }
+      });
+    }
     
     let status = "UNKNOWN";
     // Status is in a div with bg-green-500/80 for ongoing

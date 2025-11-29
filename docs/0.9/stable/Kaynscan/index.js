@@ -17098,11 +17098,41 @@ var source = (() => {
       };
       const $2 = await this.fetchCheerio(request);
       const title = $2("h1").first().text().trim();
+      let image = "";
       const coverDiv = $2(".bg-\\[image\\:--photoURL\\]").first();
       const styleAttr = coverDiv.attr("style") || "";
       const imageMatch = styleAttr.match(/--photoURL:url\(([^)]+)\)/);
-      const image = imageMatch ? imageMatch[1] : "";
-      const description = $2("p[style*='white-space']").first().text().trim();
+      if (imageMatch) {
+        image = imageMatch[1];
+      }
+      if (!image) {
+        $2("div[style*='background-image']").each((_, element) => {
+          const style = $2(element).attr("style") || "";
+          const bgMatch = style.match(/background-image:\s*url\(([^)]+)\)/);
+          if (bgMatch) {
+            image = bgMatch[1].replace(/['"]/g, "");
+            return false;
+          }
+        });
+      }
+      if (!image) {
+        const imgSrc = $2("img[src*='cdn.meowing'], img[src*='wsrv.nl']").first().attr("src");
+        if (imgSrc) image = imgSrc;
+      }
+      let description = "";
+      description = $2("p[style*='white-space']").first().text().trim();
+      if (!description) {
+        description = $2("p.pre-wrap, div.description p, .synopsis p").first().text().trim();
+      }
+      if (!description) {
+        $2("p").each((_, element) => {
+          const text3 = $2(element).text().trim();
+          if (text3.length > 50) {
+            description = text3;
+            return false;
+          }
+        });
+      }
       let status = "UNKNOWN";
       const statusDiv = $2(".bg-green-500\\/80");
       if (statusDiv.length > 0) {
