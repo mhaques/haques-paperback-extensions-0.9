@@ -17093,7 +17093,7 @@ var source = (() => {
     }
     async getMangaDetails(mangaId) {
       const request = {
-        url: `${baseUrl}/series/${mangaId}`,
+        url: `${baseUrl}/series/${mangaId}/`,
         method: "GET"
       };
       const $2 = await this.fetchCheerio(request);
@@ -17138,7 +17138,7 @@ var source = (() => {
     }
     async getChapters(sourceManga) {
       const request = {
-        url: `${baseUrl}/series/${sourceManga.mangaId}`,
+        url: `${baseUrl}/series/${sourceManga.mangaId}/`,
         method: "GET"
       };
       const $2 = await this.fetchCheerio(request);
@@ -17176,7 +17176,7 @@ var source = (() => {
       return chapters.sort((a, b) => b.chapNum - a.chapNum);
     }
     async getChapterDetails(chapter) {
-      const chapterUrl = `${baseUrl}/chapter/${chapter.chapterId}`;
+      const chapterUrl = `${baseUrl}/chapter/${chapter.chapterId}/`;
       try {
         const request = { url: chapterUrl, method: "GET" };
         const $2 = await this.fetchCheerio(request);
@@ -17212,7 +17212,7 @@ var source = (() => {
       }
     }
     getMangaShareUrl(mangaId) {
-      return `${baseUrl}/series/${mangaId}`;
+      return `${baseUrl}/series/${mangaId}/`;
     }
     async fetchCheerio(request) {
       const [response, data2] = await Application.scheduleRequest(request);

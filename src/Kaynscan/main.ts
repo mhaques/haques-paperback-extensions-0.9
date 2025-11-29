@@ -226,7 +226,7 @@ export class KaynscanExtension implements KaynscanImplementation {
 
   async getMangaDetails(mangaId: string): Promise<SourceManga> {
     const request = {
-      url: `${baseUrl}/series/${mangaId}`,
+      url: `${baseUrl}/series/${mangaId}/`,
       method: "GET",
     };
 
@@ -280,7 +280,7 @@ export class KaynscanExtension implements KaynscanImplementation {
 
   async getChapters(sourceManga: SourceManga): Promise<Chapter[]> {
     const request = {
-      url: `${baseUrl}/series/${sourceManga.mangaId}`,
+      url: `${baseUrl}/series/${sourceManga.mangaId}/`,
       method: "GET",
     };
 
@@ -335,7 +335,7 @@ export class KaynscanExtension implements KaynscanImplementation {
 
   async getChapterDetails(chapter: Chapter): Promise<ChapterDetails> {
     // Chapter URL format: /chapter/640d715df1f-640d77c18dc/
-    const chapterUrl = `${baseUrl}/chapter/${chapter.chapterId}`;
+    const chapterUrl = `${baseUrl}/chapter/${chapter.chapterId}/`;
 
     try {
       const request: Request = { url: chapterUrl, method: "GET" };
@@ -379,7 +379,7 @@ export class KaynscanExtension implements KaynscanImplementation {
   }
 
   getMangaShareUrl(mangaId: string): string {
-    return `${baseUrl}/series/${mangaId}`;
+    return `${baseUrl}/series/${mangaId}/`;
   }
 
   async fetchCheerio(request: Request): Promise<CheerioAPI> {
