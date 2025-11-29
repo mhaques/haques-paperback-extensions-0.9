@@ -17298,42 +17298,52 @@ var source = (() => {
         url: `${baseUrl}/api/manga/${sourceManga.mangaId}/chapters?source=detail`,
         method: "GET"
       };
-      const $2 = await this.fetchCheerio(request);
-      const chapters = [];
-      $2(".chapter-list li").each((_, element) => {
-        const li = $2(element);
-        const link = li.find("a");
-        const chapterUrl = link.attr("href") || "";
-        if (!chapterUrl) {
-          console.log("Skipping chapter with no URL");
-          return;
-        }
-        const chapterMatch = chapterUrl.match(/\/chapter-(\d+(?:\.\d+)?)/i);
-        if (!chapterMatch) {
-          console.log(`Skipping chapter with unrecognized URL format: ${chapterUrl}`);
-          return;
-        }
-        const chapterId = chapterMatch[1];
-        const chapterNumber = Number(chapterId);
-        if (isNaN(chapterNumber) || chapterNumber === 0) {
-          console.log(`Skipping chapter with invalid number: ${chapterId} from URL ${chapterUrl}`);
-          return;
-        }
-        const chapterTitle = link.find(".chapter-title").text().trim();
-        const dateText = link.find("time.chapter-update").text().trim();
-        console.log(`Found chapter: ${chapterTitle} (Ch. ${chapterNumber}) - URL: ${chapterUrl}`);
-        chapters.push({
-          chapterId,
-          title: chapterTitle,
-          sourceManga,
-          chapNum: chapterNumber,
-          publishDate: dateText ? new Date(convertToISO8601(dateText)) : void 0,
-          volume: void 0,
-          langCode: "\u{1F1EC}\u{1F1E7}"
+      try {
+        const [response, data2] = await Application.scheduleRequest(request);
+        this.checkCloudflareStatus(response.status);
+        const responseText = Application.arrayBufferToUTF8String(data2);
+        console.log(`Chapter API response for ${sourceManga.mangaId}:`);
+        console.log(responseText.substring(0, 500));
+        const $2 = load(responseText);
+        const chapters = [];
+        $2(".chapter-list li").each((_, element) => {
+          const li = $2(element);
+          const link = li.find("a");
+          const chapterUrl = link.attr("href") || "";
+          if (!chapterUrl) {
+            console.log("Skipping chapter with no URL");
+            return;
+          }
+          const chapterMatch = chapterUrl.match(/\/chapter-(\d+(?:\.\d+)?)/i);
+          if (!chapterMatch) {
+            console.log(`Skipping chapter with unrecognized URL format: ${chapterUrl}`);
+            return;
+          }
+          const chapterId = chapterMatch[1];
+          const chapterNumber = Number(chapterId);
+          if (isNaN(chapterNumber) || chapterNumber === 0) {
+            console.log(`Skipping chapter with invalid number: ${chapterId} from URL ${chapterUrl}`);
+            return;
+          }
+          const chapterTitle = link.find(".chapter-title").text().trim();
+          const dateText = link.find("time.chapter-update").text().trim();
+          console.log(`Found chapter: ${chapterTitle} (Ch. ${chapterNumber}) - URL: ${chapterUrl}`);
+          chapters.push({
+            chapterId,
+            title: chapterTitle,
+            sourceManga,
+            chapNum: chapterNumber,
+            publishDate: dateText ? new Date(convertToISO8601(dateText)) : void 0,
+            volume: void 0,
+            langCode: "\u{1F1EC}\u{1F1E7}"
+          });
         });
-      });
-      console.log(`Total chapters found: ${chapters.length}`);
-      return chapters.sort((a, b) => b.chapNum - a.chapNum);
+        console.log(`Total chapters found: ${chapters.length}`);
+        return chapters.sort((a, b) => b.chapNum - a.chapNum);
+      } catch (error) {
+        console.error(`Error fetching chapters for ${sourceManga.mangaId}:`, error);
+        throw error;
+      }
     }
     async getChapterDetails(chapter) {
       const chapterUrl = `${baseUrl}/${chapter.sourceManga.mangaId}/chapter-${chapter.chapterId}`;

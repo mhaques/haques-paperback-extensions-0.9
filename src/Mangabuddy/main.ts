@@ -429,72 +429,78 @@ export class MangabuddyExtension implements BuddyImplementation {
   }
 
   async getChapters(sourceManga: SourceManga): Promise<Chapter[]> {
-    // Expected mangaId: my-furry-harem-is-after-me
-    // const request = {
-    //   url: `${baseUrl}/${sourceManga.mangaId}`,
-    //   method: "GET",
-    // };
-
     const request = {
       url: `${baseUrl}/api/manga/${sourceManga.mangaId}/chapters?source=detail`,
       method: "GET",
     };
 
-    const $ = await this.fetchCheerio(request);
-    const chapters: Chapter[] = [];
-
-    
-    $(".chapter-list li").each((_, element) => {
-      const li = $(element);
-      const link = li.find("a");
-      const chapterUrl = link.attr("href") || "";
-
-      // Skip if no chapter URL
-      if (!chapterUrl) {
-        console.log("Skipping chapter with no URL");
-        return;
-      }
-
-      // More robust regex to handle various chapter URL formats
-      // Matches: /chapter-62, /chapter-63, /some-manga/chapter-123, etc.
-      const chapterMatch = chapterUrl.match(/\/chapter-(\d+(?:\.\d+)?)/i);
+    try {
+      const [response, data] = await Application.scheduleRequest(request);
+      this.checkCloudflareStatus(response.status);
+      const responseText = Application.arrayBufferToUTF8String(data);
       
-      // If we can't extract chapter number from URL, skip this chapter
-      if (!chapterMatch) {
-        console.log(`Skipping chapter with unrecognized URL format: ${chapterUrl}`);
-        return;
-      }
+      console.log(`Chapter API response for ${sourceManga.mangaId}:`);
+      console.log(responseText.substring(0, 500)); // Log first 500 chars
       
-      const chapterId = chapterMatch[1];
-      const chapterNumber = Number(chapterId);
-      
-      // Validate that we have a valid chapter number
-      if (isNaN(chapterNumber) || chapterNumber === 0) {
-        console.log(`Skipping chapter with invalid number: ${chapterId} from URL ${chapterUrl}`);
-        return;
-      }
+      // Parse as HTML using Cheerio
+      const $ = cheerio.load(responseText);
+      const chapters: Chapter[] = [];
 
-      const chapterTitle = link.find(".chapter-title").text().trim();
+      $(".chapter-list li").each((_, element) => {
+        const li = $(element);
+        const link = li.find("a");
+        const chapterUrl = link.attr("href") || "";
 
-      const dateText = link.find("time.chapter-update").text().trim();
+        // Skip if no chapter URL
+        if (!chapterUrl) {
+          console.log("Skipping chapter with no URL");
+          return;
+        }
 
-      console.log(`Found chapter: ${chapterTitle} (Ch. ${chapterNumber}) - URL: ${chapterUrl}`);
+        // More robust regex to handle various chapter URL formats
+        // Matches: /chapter-62, /chapter-63, /some-manga/chapter-123, etc.
+        const chapterMatch = chapterUrl.match(/\/chapter-(\d+(?:\.\d+)?)/i);
+        
+        // If we can't extract chapter number from URL, skip this chapter
+        if (!chapterMatch) {
+          console.log(`Skipping chapter with unrecognized URL format: ${chapterUrl}`);
+          return;
+        }
+        
+        const chapterId = chapterMatch[1];
+        const chapterNumber = Number(chapterId);
+        
+        // Validate that we have a valid chapter number
+        if (isNaN(chapterNumber) || chapterNumber === 0) {
+          console.log(`Skipping chapter with invalid number: ${chapterId} from URL ${chapterUrl}`);
+          return;
+        }
 
-      chapters.push({
-        chapterId: chapterId,
-        title: chapterTitle,
-        sourceManga,
-        chapNum: chapterNumber,
-        publishDate: dateText
-          ? new Date(convertToISO8601(dateText))
-          : undefined,
-        volume: undefined,
-        langCode: "🇬🇧",
+        const chapterTitle = link.find(".chapter-title").text().trim();
+
+        const dateText = link.find("time.chapter-update").text().trim();
+
+        console.log(`Found chapter: ${chapterTitle} (Ch. ${chapterNumber}) - URL: ${chapterUrl}`);
+
+        chapters.push({
+          chapterId: chapterId,
+          title: chapterTitle,
+          sourceManga,
+          chapNum: chapterNumber,
+          publishDate: dateText
+            ? new Date(convertToISO8601(dateText))
+            : undefined,
+          volume: undefined,
+          langCode: "🇬🇧",
+        });
       });
-    });
 
-    console.log(`Total chapters found: ${chapters.length}`);
-    return chapters.sort((a, b) => b.chapNum - a.chapNum);
+      console.log(`Total chapters found: ${chapters.length}`);
+      return chapters.sort((a, b) => b.chapNum - a.chapNum);
+    } catch (error) {
+      console.error(`Error fetching chapters for ${sourceManga.mangaId}:`, error);
+      throw error;
+    }
   }
 
   async getChapterDetails(chapter: Chapter): Promise<ChapterDetails> {
