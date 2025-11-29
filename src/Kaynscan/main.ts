@@ -66,6 +66,15 @@ export class KaynscanExtension implements KaynscanImplementation {
     }
   }
 
+  async checkCloudflareStatus(): Promise<void> {
+    const request = { url: baseUrl, method: "GET" };
+    const [response] = await Application.scheduleRequest(request);
+    
+    if (response.status === 403 || response.status === 503) {
+      throw new Error("CLOUDFLARE_BYPASS_REQUIRED");
+    }
+  }
+
   async getDiscoverSections(): Promise<DiscoverSection[]> {
     return [
       {
@@ -89,6 +98,8 @@ export class KaynscanExtension implements KaynscanImplementation {
     section: DiscoverSection,
     metadata: KaynscanMetadata | undefined,
   ): Promise<PagedResults<DiscoverSectionItem>> {
+    await this.checkCloudflareStatus();
+    
     const page = metadata?.page ?? 1;
     const collectedIds = metadata?.collectedIds ?? [];
 
@@ -162,6 +173,8 @@ export class KaynscanExtension implements KaynscanImplementation {
     query: SearchQuery,
     metadata: { page?: number } | undefined,
   ): Promise<PagedResults<SearchResultItem>> {
+    await this.checkCloudflareStatus();
+    
     const page = metadata?.page ?? 1;
     const searchUrl = `${baseUrl}/search?q=${encodeURIComponent(query.title || "")}&page=${page}`;
 
@@ -207,6 +220,8 @@ export class KaynscanExtension implements KaynscanImplementation {
   }
 
   async getMangaDetails(mangaId: string): Promise<SourceManga> {
+    await this.checkCloudflareStatus();
+    
     const request = {
       url: `${baseUrl}/series/${mangaId}`,
       method: "GET",
@@ -261,6 +276,8 @@ export class KaynscanExtension implements KaynscanImplementation {
   }
 
   async getChapters(sourceManga: SourceManga): Promise<Chapter[]> {
+    await this.checkCloudflareStatus();
+    
     const request = {
       url: `${baseUrl}/series/${sourceManga.mangaId}`,
       method: "GET",
@@ -316,6 +333,8 @@ export class KaynscanExtension implements KaynscanImplementation {
   }
 
   async getChapterDetails(chapter: Chapter): Promise<ChapterDetails> {
+    await this.checkCloudflareStatus();
+    
     // Chapter URL format: /chapter/640d715df1f-640d77c18dc/
     const chapterUrl = `${baseUrl}/chapter/${chapter.chapterId}`;
 
