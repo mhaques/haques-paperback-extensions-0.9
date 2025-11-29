@@ -193,6 +193,20 @@
         <div class="content">
             <div class="install-section">
                 <h2>🚀 Installation</h2>
+                
+                <!-- Add to Paperback Button -->
+                <div style="text-align: center; margin: 30px 0;">
+                    <button class="copy-btn" onclick="addToPaperback()" style="padding: 15px 30px; font-size: 1.2em; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);">
+                        📱 Add Repository to Paperback
+                    </button>
+                    <p style="margin-top: 10px; color: #666; font-size: 0.9em;">Click to automatically add this repository to Paperback</p>
+                </div>
+
+                <div style="text-align: center; margin: 20px 0; color: #666;">
+                    <strong>— OR —</strong>
+                </div>
+
+                <h3 style="color: #667eea; margin-bottom: 15px;">Manual Installation</h3>
                 <ol>
                     <li>Open <strong>Paperback</strong> app on your device</li>
                     <li>Go to <strong>Settings</strong> → <strong>External Sources</strong></li>
@@ -258,6 +272,12 @@
                     message.style.display = 'none';
                 }, 3000);
             });
+        }
+
+        function addToPaperback() {
+            const repoUrl = 'https://mhaques.github.io/haques-paperback-extensions-0.9/0.9/stable/';
+            const repoName = 'Haques Paperback Extensions';
+            window.location.href = `paperback://addRepo?displayName=${encodeURI(repoName)}&url=${encodeURI(repoUrl)}`;
         }
     </script>
 </body>
