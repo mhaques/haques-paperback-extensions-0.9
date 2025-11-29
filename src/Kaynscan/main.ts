@@ -351,14 +351,25 @@ export class KaynscanExtension implements KaynscanImplementation {
       const pages: string[] = [];
 
       // Kaynscan images: <img src="https://cdn.meowing.org/..." class="lazy w-full myImage">
-      $("img.myImage, img[src*='cdn.meowing'], img[src*='kaynscan']").each((_, element) => {
-        const src = $(element).attr("src") || $(element).attr("data-src") || "";
-        if (src && src.startsWith("http")) {
-          pages.push(src);
+      $("img.myImage").each((_, element) => {
+        const src = $(element).attr("src") || "";
+        if (src) {
+          // Ensure HTTPS and add to pages
+          pages.push(ensureHttps(src));
         }
       });
 
-      // Also check for images in script tags if none found
+      // If no images found with myImage class, try other selectors
+      if (pages.length === 0) {
+        $("img[src*='cdn.meowing'], img[src*='cdn.kaynscan']").each((_, element) => {
+          const src = $(element).attr("src") || $(element).attr("data-src") || "";
+          if (src && src.startsWith("http")) {
+            pages.push(ensureHttps(src));
+          }
+        });
+      }
+
+      // Also check for images in script tags if still none found
       if (pages.length === 0) {
         const scriptContent = $('script').html() || "";
         const imageMatch = scriptContent.match(/images\s*=\s*\[(.*?)\]/s);
@@ -368,7 +379,7 @@ export class KaynscanExtension implements KaynscanImplementation {
           if (imageUrls) {
             imageUrls.forEach((url) => {
               const cleanUrl = url.replace(/"/g, "");
-              pages.push(cleanUrl.startsWith("http") ? cleanUrl : `${baseUrl}${cleanUrl}`);
+              pages.push(ensureHttps(cleanUrl.startsWith("http") ? cleanUrl : `${baseUrl}${cleanUrl}`));
             });
           }
         }

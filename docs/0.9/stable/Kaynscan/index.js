@@ -17182,12 +17182,20 @@ var source = (() => {
         const request = { url: chapterUrl, method: "GET" };
         const $2 = await this.fetchCheerio(request);
         const pages = [];
-        $2("img.myImage, img[src*='cdn.meowing'], img[src*='kaynscan']").each((_, element) => {
-          const src = $2(element).attr("src") || $2(element).attr("data-src") || "";
-          if (src && src.startsWith("http")) {
-            pages.push(src);
+        $2("img.myImage").each((_, element) => {
+          const src = $2(element).attr("src") || "";
+          if (src) {
+            pages.push(ensureHttps(src));
           }
         });
+        if (pages.length === 0) {
+          $2("img[src*='cdn.meowing'], img[src*='cdn.kaynscan']").each((_, element) => {
+            const src = $2(element).attr("src") || $2(element).attr("data-src") || "";
+            if (src && src.startsWith("http")) {
+              pages.push(ensureHttps(src));
+            }
+          });
+        }
         if (pages.length === 0) {
           const scriptContent = $2("script").html() || "";
           const imageMatch = scriptContent.match(/images\s*=\s*\[(.*?)\]/s);
@@ -17197,7 +17205,7 @@ var source = (() => {
             if (imageUrls) {
               imageUrls.forEach((url) => {
                 const cleanUrl = url.replace(/"/g, "");
-                pages.push(cleanUrl.startsWith("http") ? cleanUrl : `${baseUrl}${cleanUrl}`);
+                pages.push(ensureHttps(cleanUrl.startsWith("http") ? cleanUrl : `${baseUrl}${cleanUrl}`));
               });
             }
           }
